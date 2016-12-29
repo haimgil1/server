@@ -2,7 +2,10 @@
 #include "Cab.h"
 
 Cab::Cab() {
-
+    this->cabId = 1234;
+    this->klmPassed = 0;
+    this->manufacturer = CarManufacturer ::FIAT;
+    this->color = Color ::BLUE;
 }
 
 Cab::Cab(int cabId1, CarManufacturer manufacturer1,

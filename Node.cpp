@@ -47,3 +47,5 @@ void Node::setPoint(const Point &point) {
     this->point = point;
 }
 
+BOOST_CLASS_EXPORT(Node)
+

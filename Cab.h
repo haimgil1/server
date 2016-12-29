@@ -10,6 +10,8 @@
 #include "Color.h"
 #include "AbstractNode.h"
 #include <stack>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 
 using namespace std;
 
@@ -79,5 +81,5 @@ public:
     bool operator!=(const Cab &cab) const;
 };
 
-
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Cab)
 #endif //TASK2BFS_CABBASE_H

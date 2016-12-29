@@ -15,7 +15,6 @@ class Node : public AbstractNode {
     void serialize(Archive &ar, const unsigned int version)
     {
         ar & boost::serialization::base_object<AbstractNode>(*this);
-        //ar & prev;
         ar & point;
     }
 

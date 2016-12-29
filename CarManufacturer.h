@@ -1,6 +1,4 @@
-//
-// Created by haim gil on 28 Nov 2016.
-//
+
 
 #ifndef TASK2BFS_CARMANUFACTURER_H
 #define TASK2BFS_CARMANUFACTURER_H

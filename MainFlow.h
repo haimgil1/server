@@ -10,6 +10,8 @@
 #include "Passenger.h"
 #include "TaxiCenter.h"
 #include <stdexcept>
+#include "Socket.h"
+#include "Udp.h"
 
 using namespace std;
 
@@ -21,6 +23,7 @@ private:
     TripInformation *tripInformation;
     Grid *map;
     double time;
+    Socket *udp;
 public:
     MainFlow();
 
@@ -42,6 +45,8 @@ public:
 
     // The function gets parameters and return a map.
     Grid *MapParser(int n, int m);
+
+    void sendNewLocation(AbstractNode *node);
 };
 
 

@@ -116,4 +116,6 @@ ostream &operator<<(ostream &os, const Driver &driver) {
     return os<<driver.getId();
 }
 
+Driver::Driver() {}
+
 

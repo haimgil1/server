@@ -5,7 +5,8 @@
 #include <vector>
 #include "Point.h"
 #include <ostream>
-
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 using namespace std;
 
 /*Class: AbstractNode.
@@ -73,5 +74,5 @@ public:
     virtual bool operator!=(const Point p) const =0;
 
 };
-
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(AbstractNode)
 #endif //TASK2BFS_ABSTRACTNODE_H

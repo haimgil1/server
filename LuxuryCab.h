@@ -14,11 +14,19 @@ using namespace std;
  * The class implements the getCoefficient and moveOneStep
  * functions of the Cab. */
 class LuxuryCab : public Cab {
+    friend class access;
+
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        ar & boost::serialization::base_object<Cab>(*this);
+
+    }
 private:
 
 public:
     // Constructor.
-    LuxuryCab(int cabId, CarManufacturer manufacturer, Color color);
+    LuxuryCab(int cabId=1, CarManufacturer manufacturer= CarManufacturer::FIAT, Color color = Color::RED);
 
     // The function calculate the new tariff of luxury cabs.
     int getCoefficient();

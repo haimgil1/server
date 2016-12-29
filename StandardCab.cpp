@@ -22,3 +22,4 @@ AbstractNode *StandardCab::moveOneStep(stack<AbstractNode *> *track, Point endPo
 StandardCab::~StandardCab() {
 
 }
+BOOST_CLASS_EXPORT(StandardCab)

@@ -22,8 +22,13 @@ class Driver {
         ar & age;
         ar & materialStatus;
         ar & experience;
+        ar & satisfaction;
+        ar & numOfCustomers;
         ar & cabId;
         ar & currentPoint;
+        ar & cab;
+        ar & occupied;
+
     }
 private:
     // Members.
@@ -43,6 +48,8 @@ public:
     // Constructor - gets the new parameters and update the members value.
     Driver(int newId, double newAge, MaritalStatus newMaterialStatus, double newExperience,
            int cabId, AbstractNode *currentPoint);
+
+    Driver();
 
     // Destructor.
     ~Driver();

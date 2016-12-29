@@ -2,12 +2,17 @@
 #include "MainFlow.h"
 #include "FactoryCab.h"
 
+using namespace std;
+using namespace boost::iostreams;
+using namespace boost::archive;
+
 MainFlow::MainFlow() {
     this->cab = NULL;
     this->driver = NULL;
     this->tripInformation = NULL;
-    this->map=NULL;
+    this->map = NULL;
     this->time = 0;
+    this->udp = NULL;
 }
 
 MainFlow::~MainFlow() {
@@ -15,11 +20,17 @@ MainFlow::~MainFlow() {
 }
 
 void MainFlow::startGame() {
-    int sizeX, sizeY;
+
+    int sizeX, sizeY,driverId;
+    string serial_str;
+    AbstractNode *node;
+    back_insert_device<std::string> inserter(serial_str);
+    boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
+    binary_oarchive oa(s);
     char dummy;
     cin >> sizeX >> sizeY; // Get the n,m of the map.
-    this->map = this->MapParser(sizeX, sizeY);;
-    int numOfObstacles;
+    this->map = this->MapParser(sizeX, sizeY);
+    int numOfObstacles, numOfDrivers;
     cin >> numOfObstacles; // Get number of obstacles.
     while (numOfObstacles > 0) { // Get the points of the obstacles.
         int px, py;
@@ -42,22 +53,30 @@ void MainFlow::startGame() {
                 break;
 
             case 1:  // Get driver parameters.
-                int driverId, vehicleId;
-                double age, experience;
-                char status;
-                cin >> driverId >> dummy >> age >> dummy >> status >> dummy >> experience >> dummy
-                    >> vehicleId;
-                this->driver = this->driverParser(driverId, age, status, experience, vehicleId);
-                this->cab = taxiCenter.findCabById(vehicleId);
+                cin >> numOfDrivers;
+                while (numOfDrivers > 0) { // Get the points of the obstacles.
+                    this->udp = new Udp(1, 12345);
+                    udp->initialize();
+                    char buffer[4096];
+                    udp->reciveData(buffer, sizeof(buffer));
+                    char *end = buffer + 4095;
+                    basic_array_source<char> device(buffer, end);
+                    boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
+                            device);
+                    binary_iarchive ia(s2);
+                    ia >> this->driver;
+                    numOfDrivers--;
+                }
+                this->cab = taxiCenter.findCabById(this->driver->getCabId());
                 this->driver->setCab(this->cab);
                 taxiCenter.addDriver(this->driver);
                 break;
 
             case 2:  // Get trip parameters.
                 int tripId, startX, startY, endX, endY, numOfPassengers;
-                double tariff,time;
+                double tariff, time;
                 cin >> tripId >> dummy >> startX >> dummy >> startY >> dummy >> endX >> dummy
-                    >> endY >> dummy >> numOfPassengers >> dummy >> tariff>> dummy >> time;
+                    >> endY >> dummy >> numOfPassengers >> dummy >> tariff >> dummy >> time;
 
                 // Trip can't be negative and more than map coordinate.
                 if (startX >= sizeX || startY >= sizeY || startX < 0 || startY < 0
@@ -67,7 +86,7 @@ void MainFlow::startGame() {
 
                 this->tripInformation = this->tripInfoParser(tripId, startX, startY, endX, endY,
                                                              numOfPassengers, tariff,
-                                                             this->map,time);
+                                                             this->map, time);
                 taxiCenter.addTrip(this->tripInformation);
                 break;
 
@@ -75,6 +94,8 @@ void MainFlow::startGame() {
                 // Start the trips.
                 this->time++;
                 taxiCenter.driving(this->time);
+                node = taxiCenter.getDriverVec()[0]->getcurrentPoint();
+                sendNewLocation(node);
                 break;
 
             case 4:
@@ -84,6 +105,9 @@ void MainFlow::startGame() {
                 break;
 
             case 7:
+                oa << mission;
+                s.flush();
+                udp->sendData(serial_str);
                 return;
             default:
                 throw invalid_argument("invalid number of mission\n");
@@ -111,7 +135,7 @@ Driver *MainFlow::driverParser(int driverId, double age, char status, double exp
 
 TripInformation *MainFlow::tripInfoParser(int tripId, int startX, int startY, int endX, int endY,
                                           int numOfPassengers, double tariff,
-                                          Grid *map,double time) {
+                                          Grid *map, double time) {
     Point startP(startX, startY);
     Point endP(endX, endY);
     return new TripInformation(tripId, startP, endP, numOfPassengers, tariff, map, time);
@@ -119,5 +143,15 @@ TripInformation *MainFlow::tripInfoParser(int tripId, int startX, int startY, in
 
 Grid *MainFlow::MapParser(int n, int m) {
     return new Matrix(n, m);
+}
+
+void MainFlow::sendNewLocation(AbstractNode *node) {
+    string serial_str;
+    back_insert_device<std::string> inserter(serial_str);
+    boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
+    binary_oarchive oa(s);
+    oa << node;
+    s.flush();
+    udp->sendData(serial_str);
 }
 
