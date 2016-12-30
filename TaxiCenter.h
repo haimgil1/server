@@ -11,6 +11,7 @@
 #include "Matrix.h"
 #include "Cab.h"
 #include "Driver.h"
+#include "Socket.h"
 #include <algorithm>
 #include <deque>
 
@@ -127,7 +128,9 @@ public:
     /**
      * Start the trips.
      */
-    void driving(double time);
+    void driving(double time, Socket *udp);
+
+    void sendUpdateDriver(Driver *driver, Socket *udp);
 
     virtual ~TaxiCenter();
 };

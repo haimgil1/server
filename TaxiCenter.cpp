@@ -2,6 +2,9 @@
 #include "TaxiCenter.h"
 #include <iostream>
 
+using namespace std;
+using namespace boost::iostreams;
+using namespace boost::archive;
 
 TaxiCenter::TaxiCenter() {
 
@@ -98,7 +101,7 @@ Driver *TaxiCenter::findDriverById(int driverId) {
     return NULL;
 }
 
-void TaxiCenter::driving(double time) {
+void TaxiCenter::driving(double time, Socket *udp) {
 
     // Assigning driver to a trip.
     for (int i = 0; i < (int) this->trips.size(); i++) {
@@ -112,6 +115,7 @@ void TaxiCenter::driving(double time) {
     for (int i = 0; i < (int) this->trips.size(); i++) {
         if (this->trips[i]->getDriver() != NULL && this->trips[i]->getTime() < time) {
             this->trips[i]->moveOneStep();
+            this->sendUpdateDriver(this->trips[i]->getDriver(), udp);
             if (!this->trips[i]->getDriver()->isOccupied()){
                 TripInformation *trip = this->trips[i];
                 this->removeTrip(this->trips[i]);
@@ -139,4 +143,15 @@ TaxiCenter::~TaxiCenter() {
     for (int i = 0; i < (int) this->trips.size(); i++) {
         delete this->trips[i];
     }
+}
+
+
+void TaxiCenter::sendUpdateDriver(Driver *driver, Socket *udp) {
+    string serial_str;
+    back_insert_device<std::string> inserter(serial_str);
+    boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
+    binary_oarchive oa(s);
+    oa << driver;
+    s.flush();
+    udp->sendData(serial_str);
 }

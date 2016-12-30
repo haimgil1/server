@@ -29,7 +29,6 @@ Client::~Client() {
 }
 
 Client::Client(char *argv) {
-    this->argv = argv;
     this->udp = new Udp(0, atoi(argv));
     this->udp->initialize();
     this->end = buffer + 4095;
@@ -83,6 +82,6 @@ void Client::updateDriver() {
         if (this->driver->getcurrentPoint() == NULL) {
             break;
         }
-        cout << *(this->driver->getcurrentPoint());
+        //cout << *(this->driver->getcurrentPoint());
     }
 }

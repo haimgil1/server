@@ -38,7 +38,6 @@ public:
 
     void updateDriver();
 private:
-    char *argv;
     Socket *udp;
     char buffer[4096];
     char *end;

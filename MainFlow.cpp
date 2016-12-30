@@ -77,9 +77,7 @@ void MainFlow::startGame() {
             case 9:
                 // Start the trips.
                 this->time++;
-                taxiCenter.driving(this->time);
-                this->driver = taxiCenter.getDriverVec()[0];
-                sendUpdateDriver(this->driver);
+                taxiCenter.driving(this->time, this->udp);
                 break;
 
             case 4:
