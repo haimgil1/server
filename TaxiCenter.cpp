@@ -118,10 +118,8 @@ void TaxiCenter::driving(double time) {
                 delete trip;
                 i--;
             }
-
         }
     }
-
 }
 
 

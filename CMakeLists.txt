@@ -18,7 +18,7 @@ set(SOURCE_FILES Bfs.cpp Bfs.h Node.cpp Node.h Point.cpp Point.h
         Tests/TripInfoTest.cpp Tests/NodeTest.cpp TaxiCenter.cpp TaxiCenter.h Tests/MatrixTest.cpp
         Tests/BfsTest.cpp Tests/TaxiCenterTest.cpp Tests/PointTest.cpp MainFlow.cpp MainFlow.h
         Grid.cpp Searchable.cpp Searchable.h Tests/MainFlowTest.cpp Udp.cpp Udp.h Tcp.h Tcp.cpp
-        Socket.h Socket.cpp)
+        Socket.h Socket.cpp Client.h)
 add_executable(EX2 ${SOURCE_FILES} Tests/CabTest.cpp Tests/CabTest.cpp Driver.cpp Driver.h
         MaritalStatus.h Passenger.cpp Passenger.h TripInformation.cpp
         TripInformation.h Tests/DriverTest.cpp Tests/PassengerTest.cpp Tests/TripInfoTest.cpp
@@ -31,7 +31,7 @@ find_package(Boost 1.57.0 COMPONENTS serialization system)
 include_directories(${Boost_INCLUDE_DIR})
 
 add_executable(Client ${SOURCE_FILES} Client.cpp Driver.cpp Cab.cpp AbstractNode.cpp Node.cpp
-        Point.h Color.h CarManufacturer.h MaritalStatus.h)
+        Point.h Color.h CarManufacturer.h MaritalStatus.h Client.h)
 add_executable(Server ${SOURCE_FILES} Server.cpp Bfs.h Node.cpp Node.h Point.cpp Point.h
         Grid.h Matrix.cpp Matrix.h AbstractNode.cpp AbstractNode.h Cab.cpp
         Cab.h LuxuryCab.cpp LuxuryCab.h CarManufacturer.h Color.h StandardCab.cpp

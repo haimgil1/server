@@ -46,7 +46,13 @@ public:
     // The function gets parameters and return a map.
     Grid *MapParser(int n, int m);
 
-    void sendNewLocation(AbstractNode *node);
+    void sendUpdateDriver(Driver *driver);
+
+    void sendUpdateCab(Cab *cab);
+
+    void receiveDriver();
+
+    void updateObstacles();
 };
 
 

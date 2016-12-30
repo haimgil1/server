@@ -11,33 +11,23 @@ MainFlow::MainFlow() {
     this->driver = NULL;
     this->tripInformation = NULL;
     this->map = NULL;
-    this->time = 0;
     this->udp = NULL;
+    this->time = 0;
 }
 
 MainFlow::~MainFlow() {
+    delete udp;
     delete map;
 }
 
 void MainFlow::startGame() {
 
     int sizeX, sizeY,driverId;
-    string serial_str;
-    AbstractNode *node;
-    back_insert_device<std::string> inserter(serial_str);
-    boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
-    binary_oarchive oa(s);
     char dummy;
+    int numOfDrivers;
     cin >> sizeX >> sizeY; // Get the n,m of the map.
     this->map = this->MapParser(sizeX, sizeY);
-    int numOfObstacles, numOfDrivers;
-    cin >> numOfObstacles; // Get number of obstacles.
-    while (numOfObstacles > 0) { // Get the points of the obstacles.
-        int px, py;
-        cin >> px >> dummy >> py;
-        this->map->getSourceElement(px, py)->setObstacle(true);
-        numOfObstacles--;
-    }
+    updateObstacles();
     TaxiCenter taxiCenter(this->map); // Create taxi center.
     int mission; // the num of choice in the menu.
     do {
@@ -54,22 +44,16 @@ void MainFlow::startGame() {
 
             case 1:  // Get driver parameters.
                 cin >> numOfDrivers;
-                while (numOfDrivers > 0) { // Get the points of the obstacles.
+                while (numOfDrivers > 0) { // Getting the drivers.
                     this->udp = new Udp(1, 12345);
                     udp->initialize();
-                    char buffer[4096];
-                    udp->reciveData(buffer, sizeof(buffer));
-                    char *end = buffer + 4095;
-                    basic_array_source<char> device(buffer, end);
-                    boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
-                            device);
-                    binary_iarchive ia(s2);
-                    ia >> this->driver;
+                    receiveDriver();
+                    this->cab = taxiCenter.findCabById(this->driver->getCabId());
+                    this->driver->setCab(this->cab);
+                    sendUpdateCab(this->cab);
+                    taxiCenter.addDriver(this->driver);
                     numOfDrivers--;
                 }
-                this->cab = taxiCenter.findCabById(this->driver->getCabId());
-                this->driver->setCab(this->cab);
-                taxiCenter.addDriver(this->driver);
                 break;
 
             case 2:  // Get trip parameters.
@@ -94,8 +78,8 @@ void MainFlow::startGame() {
                 // Start the trips.
                 this->time++;
                 taxiCenter.driving(this->time);
-                node = taxiCenter.getDriverVec()[0]->getcurrentPoint();
-                sendNewLocation(node);
+                this->driver = taxiCenter.getDriverVec()[0];
+                sendUpdateDriver(this->driver);
                 break;
 
             case 4:
@@ -105,9 +89,9 @@ void MainFlow::startGame() {
                 break;
 
             case 7:
-                oa << mission;
-                s.flush();
-                udp->sendData(serial_str);
+                this->driver = taxiCenter.getDriverVec()[0];
+                this->driver->setCurrentPoint(NULL);
+                sendUpdateDriver(this->driver);
                 return;
             default:
                 throw invalid_argument("invalid number of mission\n");
@@ -145,13 +129,46 @@ Grid *MainFlow::MapParser(int n, int m) {
     return new Matrix(n, m);
 }
 
-void MainFlow::sendNewLocation(AbstractNode *node) {
+void MainFlow::sendUpdateDriver(Driver *driver) {
     string serial_str;
     back_insert_device<std::string> inserter(serial_str);
     boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
     binary_oarchive oa(s);
-    oa << node;
+    oa << driver;
     s.flush();
     udp->sendData(serial_str);
+}
+
+void MainFlow::sendUpdateCab(Cab *cab) {
+    string serial_str;
+    back_insert_device<std::string> inserter(serial_str);
+    boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
+    binary_oarchive oa(s);
+    oa << cab;
+    s.flush();
+    udp->sendData(serial_str);
+}
+
+void MainFlow::receiveDriver() {
+    char buffer[4096];
+    udp->reciveData(buffer, sizeof(buffer));
+    char *end = buffer + 4095;
+    basic_array_source<char> device(buffer, end);
+    boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
+            device);
+    binary_iarchive ia(s2);
+    ia >>this->driver;
+}
+
+void MainFlow::updateObstacles(){
+    char dummy;
+    int numOfObstacles;
+    cin >> numOfObstacles; // Get number of obstacles.
+    while (numOfObstacles > 0) { // Get the points of the obstacles.
+        int px, py;
+        cin >> px >> dummy >> py;
+        this->map->getSourceElement(px, py)->setObstacle(true);
+        numOfObstacles--;
+    }
 }
 

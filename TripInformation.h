@@ -25,8 +25,6 @@ private:
     int numOfPassenger;
     double tariff;
     double time;
-public:
-    double getTime() const;
 
 private:
     Point startPoint;
@@ -111,6 +109,8 @@ public:
 
     // The function calculate the ride tariff.
     double rideCost();
+
+    double getTime() const;
 
     // The operator to compare TripInformation object.
     bool operator==(const TripInformation &trip) const;

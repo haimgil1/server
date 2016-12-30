@@ -1,12 +1,5 @@
-//
-// Created by yanaiela on 12/10/16.
-//
-
 #include "Udp.h"
-#include <unistd.h>
-#include "MainFlow.h"
-#include "StandardCab.h"
-#include "FactoryCab.h"
+#include "Client.h"
 
 using namespace std;
 using namespace boost::iostreams;
@@ -15,48 +8,81 @@ using namespace boost::archive;
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    int mission;
-    char buffer[4096];
+    Client client(argv[1]);
+    client.scanDriver();
+    client.sendDriver();
+    client.receiveCab();
+    client.updateDriver();
+
+    return 0;
+}
+
+Client::Client() {
+
+}
+
+Client::~Client() {
+    delete driver;
+    delete cab;
+    delete udp;
+    delete node;
+}
+
+Client::Client(char *argv) {
+    this->argv = argv;
+    this->udp = new Udp(0, atoi(argv));
+    this->udp->initialize();
+    this->end = buffer + 4095;
+    this->driver = NULL;
+    this->cab = NULL;
+    this->node = new Node(Point(0, 0), NULL);
+
+
+}
+
+void Client::scanDriver() {
     char dummy;
     int driverId, vehicleId;
     double age, experience;
     char status;
     cin >> driverId >> dummy >> age >> dummy >> status >> dummy >> experience >> dummy
         >> vehicleId;
-    AbstractNode *node = new Node(Point(0,0),NULL);
+    this->node = new Node(Point(0, 0), NULL);
     MaritalStatus maritalStatus = MaritalStatus(status);
-    Driver *driver = new Driver (driverId, age, maritalStatus, experience, vehicleId,node);
+    this->driver = new Driver(driverId, age, maritalStatus, experience, vehicleId, node);
+}
 
+void Client::receiveCab() {
+    this->udp->reciveData(buffer, sizeof(buffer));
+    basic_array_source<char> device(buffer, end);
+    boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
+            device);
+    binary_iarchive ia(s2);
+    ia >> this->cab;
+    this->driver->setCab(this->cab);
+}
+
+void Client::sendDriver() {
     string serial_str;
     back_insert_device<std::string> inserter(serial_str);
     boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
     binary_oarchive oa(s);
-    oa << driver;
+    oa << this->driver;
     s.flush();
+    this->udp->sendData(serial_str);
+}
 
-
-
-    std::cout << "Hello, from client" << std::endl;
-
-    //cout << argv[1] << endl;
-    Socket *udp = new Udp(0, atoi(argv[1]));
-    udp->initialize();
-    udp->sendData(serial_str);
-
-    while (mission!=7) {
-
-
-        udp->reciveData(buffer, sizeof(buffer));
-        char *end = buffer + 4095; //todo
+void Client::updateDriver() {
+    while (true) {
+        this->udp->reciveData(buffer, sizeof(buffer));
         basic_array_source<char> device(buffer, end);
         boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
                 device);
         binary_iarchive ia(s2);
-        ia >> node;
-        driver->setCurrentPoint(node);
-        cout << *(driver->getcurrentPoint());
+        ia >> this->driver;
+        if (this->driver->getcurrentPoint() == NULL) {
+            break;
+        }
+        cout << *(this->driver->getcurrentPoint());
     }
-   // cout << buffer << endl;
-
-    return 0;
 }
