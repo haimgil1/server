@@ -11,7 +11,7 @@ using namespace std;
  * The class implements the getCoefficient and moveOneStep
  * functions of the Cab. */
 class StandardCab : public Cab {
-    friend class access;
+    friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version)

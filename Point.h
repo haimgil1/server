@@ -23,7 +23,7 @@ using namespace boost::serialization;
 
 //std::stringstream ss;
 class Point {
-    friend class access;
+    friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version)

@@ -14,7 +14,7 @@
 /* class: Driver.
  * The class has derails on driver and has some functions. */
 class Driver {
-    friend class access;
+    friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version)
     {

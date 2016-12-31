@@ -4,3 +4,5 @@
 Grid::~Grid() {
 
 }
+
+Grid::Grid() {}

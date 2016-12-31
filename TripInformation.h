@@ -18,6 +18,18 @@
  * The class has function that gets the details and update the
  * details of the class members.*/
 class TripInformation {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        ar & rideId;
+        ar & startPoint;
+        ar & endPoint;
+        ar & numOfPassenger;
+        ar & tariff;
+        ar & time;
+    }
 private:
     // Members.
     int rideId;

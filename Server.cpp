@@ -9,7 +9,7 @@ using namespace std;
 using namespace boost::iostreams;
 using namespace boost::archive;
 
-int main() {
+int main(int argc, char *argv[]) {
     std::cout << "Hello, from server" << std::endl;
     MainFlow mainFlow;
     try {

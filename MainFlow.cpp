@@ -27,7 +27,7 @@ void MainFlow::startGame() {
     int numOfDrivers;
     cin >> sizeX >> sizeY; // Get the n,m of the map.
     this->map = this->MapParser(sizeX, sizeY);
-    updateObstacles();
+    updateObstacles(); // set the obstacles.
     TaxiCenter taxiCenter(this->map); // Create taxi center.
     int mission; // the num of choice in the menu.
     do {
@@ -47,10 +47,10 @@ void MainFlow::startGame() {
                 while (numOfDrivers > 0) { // Getting the drivers.
                     this->udp = new Udp(1, 12345);
                     udp->initialize();
-                    receiveDriver();
+                    receiveDriver(); // receive driver from the client.
                     this->cab = taxiCenter.findCabById(this->driver->getCabId());
                     this->driver->setCab(this->cab);
-                    sendUpdateCab(this->cab);
+                    sendUpdateCab(this->cab); // send the cab to the client.
                     taxiCenter.addDriver(this->driver);
                     numOfDrivers--;
                 }
@@ -72,13 +72,25 @@ void MainFlow::startGame() {
                                                              numOfPassengers, tariff,
                                                              this->map, time);
                 taxiCenter.addTrip(this->tripInformation);
+                this->tripInformation = NULL;
+               // this->sendUpdateTrip(this->tripInformation);
                 break;
 
             case 9:
                 // Start the trips.
-                this->time++;
-                taxiCenter.driving(this->time, this->udp);
-                break;
+                this->time++; // add one to the time.
+                // In the driving we send driver to the client if the time correct.
+/*                if (*(this->driver->getcurrentPoint()) == this->tripInformation->getEndPoint()) {
+                    this->tripInformation = NULL;
+                }*/
+                if(this->tripInformation == NULL) {
+                    this->tripInformation = taxiCenter.getTripQueue()[0];
+                    this->sendMission(9);
+                    this->sendUpdateTrip(this->tripInformation);
+                }
+
+                    taxiCenter.driving(this->time, this->udp);
+                    break;
 
             case 4:
                 // Print driver location
@@ -87,9 +99,11 @@ void MainFlow::startGame() {
                 break;
 
             case 7:
-                this->driver = taxiCenter.getDriverVec()[0];
-                this->driver->setCurrentPoint(NULL);
-                sendUpdateDriver(this->driver);
+                this->sendMission(7);
+                // End the program.
+                //this->driver = taxiCenter.getDriverVec()[0];
+                //this->driver->setCurrentPoint(NULL);
+                //sendUpdateDriver(this->driver);
                 return;
             default:
                 throw invalid_argument("invalid number of mission\n");
@@ -144,13 +158,13 @@ void MainFlow::sendUpdateCab(Cab *cab) {
     binary_oarchive oa(s);
     oa << cab;
     s.flush();
-    udp->sendData(serial_str);
+    udp->sendData(serial_str); // Send the cab.
 }
 
 void MainFlow::receiveDriver() {
     char buffer[4096];
     udp->reciveData(buffer, sizeof(buffer));
-    char *end = buffer + 4095;
+    char *end = buffer + 4095; // The end of the buffer pointer.
     basic_array_source<char> device(buffer, end);
     boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
             device);
@@ -170,3 +184,21 @@ void MainFlow::updateObstacles(){
     }
 }
 
+void MainFlow::sendUpdateTrip(TripInformation *trip) {
+    string serial_str;
+    back_insert_device<std::string> inserter(serial_str);
+    boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
+    binary_oarchive oa(s);
+    oa << trip;
+    s.flush();
+    udp->sendData(serial_str); // Send the cab.
+}
+void MainFlow::sendMission(int mission) {
+    string serial_str;
+    back_insert_device<std::string> inserter(serial_str);
+    boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
+    binary_oarchive oa(s);
+    oa << mission;
+    s.flush();
+    udp->sendData(serial_str);
+}

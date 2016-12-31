@@ -13,7 +13,7 @@ using namespace std;
  * is the abstract class of node with common functions of
  * different type of nodes.*/
 class AbstractNode {
-    friend class access;
+    friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version)
@@ -62,15 +62,16 @@ public:
     // virtual function to get obstacle.
     virtual bool getObstacle()  =0;
 
+    // virtual distractor.
     virtual ~AbstractNode() = 0;
 
     // Overriding the == operator.
     virtual bool operator==(const AbstractNode &otherNode) const =0;
-
+    // Overriding the != operator.
     virtual bool operator!=(const AbstractNode &node) const;
-
+    // Overriding the == operator.
     virtual bool operator==(const Point p) const =0;
-
+    // Overriding the != operator.
     virtual bool operator!=(const Point p) const =0;
 
 };

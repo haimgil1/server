@@ -8,6 +8,15 @@
 
 // A Matrix class that holds a matrix of nodes and the width and the height.
 class Matrix : public Grid {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+        ar & boost::serialization::base_object<Grid>(*this);
+        ar & n;
+        ar & m;
+    }
 private:
     // Members.
     int n, m;

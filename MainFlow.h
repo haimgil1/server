@@ -14,7 +14,11 @@
 #include "Udp.h"
 
 using namespace std;
-
+/*
+ * The class - MainFlow.
+ * The class gets from the user the parameter,
+ * and creates the cab, trip, map objects.
+ */
 class MainFlow {
 
 private:
@@ -25,10 +29,11 @@ private:
     double time;
     Socket *udp;
 public:
+    // Default conatructor.
     MainFlow();
-
+    // Start the game to get all the parameters from the user.
     void startGame();
-
+    // Destructor.
     virtual ~MainFlow();
 
     // The function gets parameters and return a cab.
@@ -45,16 +50,18 @@ public:
 
     // The function gets parameters and return a map.
     Grid *MapParser(int n, int m);
-
+    // The function sends driver to the client.
     void sendUpdateDriver(Driver *driver);
-
+    // The function sends cab to the client.
     void sendUpdateCab(Cab *cab);
-
+    // The function receives driver from the client.
     void receiveDriver();
-
+    // The function update the obstacles.
     void updateObstacles();
+    void sendUpdateTrip(TripInformation *trip);
+    void sendMission(int mission);
 
-};
+    };
 
 
 #endif //TASK2BFS_MAINFLOW_H

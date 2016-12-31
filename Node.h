@@ -9,7 +9,7 @@ using namespace std;
 
 // Class: Node extends the AbstractNode and holds a point.
 class Node : public AbstractNode {
-    friend class access;
+    friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version)

@@ -3,13 +3,22 @@
 #define TASK2BFS_SHAPEGRAPH_H
 
 #include "Node.h"
-
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 /* A Grid class is an interface that holds a graph,
  * a source point and destination point.
    The grid it's a general shape.
    It can hold many shape such as nodes, graph and etc.*/
 class Grid {
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive &ar, const unsigned int version)
+    {
+    }
 public:
+    Grid();
+
     virtual ~Grid() = 0;
 
     // Building the graph.
@@ -30,5 +39,6 @@ public:
     virtual void setDistanceNeighbors()=0;
 };
 
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Grid)
 
 #endif //TASK2BFS_SHAPEGRAPH_H

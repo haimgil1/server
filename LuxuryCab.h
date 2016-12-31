@@ -14,7 +14,7 @@ using namespace std;
  * The class implements the getCoefficient and moveOneStep
  * functions of the Cab. */
 class LuxuryCab : public Cab {
-    friend class access;
+    friend class boost::serialization::access;
 
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version)
@@ -33,7 +33,7 @@ public:
 
     // The function change the block moveOneStep accordingly luxury cabs.
     AbstractNode *moveOneStep(stack<AbstractNode *> *track, Point endPoint);
-
+    // default destructor.
     virtual ~LuxuryCab();
 };
 

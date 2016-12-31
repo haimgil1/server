@@ -113,7 +113,7 @@ void TaxiCenter::driving(double time, Socket *udp) {
 
     // Starting the track and remove from list.
     for (int i = 0; i < (int) this->trips.size(); i++) {
-        if (this->trips[i]->getDriver() != NULL && this->trips[i]->getTime() < time) {
+        if (this->trips[i]->getDriver() != NULL && this->trips[i]->getTime() <= time) {
             this->trips[i]->moveOneStep();
             this->sendUpdateDriver(this->trips[i]->getDriver(), udp);
             if (!this->trips[i]->getDriver()->isOccupied()){
