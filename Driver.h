@@ -48,7 +48,7 @@ public:
     // Constructor - gets the new parameters and update the members value.
     Driver(int newId, double newAge, MaritalStatus newMaterialStatus, double newExperience,
            int cabId, AbstractNode *currentPoint);
-    // Default constractor.
+    // Default constructor.
     Driver();
 
     // Destructor.
@@ -106,11 +106,9 @@ public:
 
     // Set the operator ==.
     bool operator==(const Driver &driver) const;
+
     // Set the operator!= .
     bool operator!=(const Driver &driver) const;
-
-    friend ostream &operator<<(std::ostream &os, const Driver &driver);
-
 
     // Checking if the driver is isOccupied.
     bool isOccupied() const;

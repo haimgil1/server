@@ -90,7 +90,7 @@ void MainFlow::startGame(int argc, char *argv[]) {
             case 7:
                 // return.
                 this->driver = taxiCenter.getDriverVec()[0];
-                this->driver->setId(-1); // Prapere to end the client.
+                this->driver->setId(-1); // Prepare to end the client.
                 sendUpdateDriver(this->driver);
                 return;
             default:

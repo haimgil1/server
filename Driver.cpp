@@ -118,10 +118,6 @@ void Driver::setOccupied(bool occupied) {
     this->occupied = occupied;
 }
 
-ostream &operator<<(ostream &os, const Driver &driver) {
-    return os<<driver.getId();
-}
-
 Driver::Driver() {}
 
 

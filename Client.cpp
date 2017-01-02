@@ -52,7 +52,6 @@ void Client::receiveCab() {
     boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
             device);
     binary_iarchive ia(s2);
-    //delete this->cab;
     ia >> this->cab;
     this->driver->setCab(this->cab);
 }
