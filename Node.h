@@ -54,6 +54,8 @@ public:
     // Setting the point.
     void setPoint(const Point &point);
 
+    Point* getPointNode();
+
     // Getting the point.
     const Point &getPoint() const;
 

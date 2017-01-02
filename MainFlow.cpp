@@ -20,14 +20,14 @@ MainFlow::~MainFlow() {
     delete map;
 }
 
-void MainFlow::startGame() {
+void MainFlow::startGame(int argc, char *argv[]) {
 
     int sizeX, sizeY,driverId;
     char dummy;
     int numOfDrivers;
     cin >> sizeX >> sizeY; // Get the n,m of the map.
     this->map = this->MapParser(sizeX, sizeY);
-    updateObstacles(); // set the obstacles.
+    updateObstacles();
     TaxiCenter taxiCenter(this->map); // Create taxi center.
     int mission; // the num of choice in the menu.
     do {
@@ -45,12 +45,12 @@ void MainFlow::startGame() {
             case 1:  // Get driver parameters.
                 cin >> numOfDrivers;
                 while (numOfDrivers > 0) { // Getting the drivers.
-                    this->udp = new Udp(1, 12345);
+                    this->udp = new Udp(1, atoi(argv[1])); // Set the port to udp.
                     udp->initialize();
-                    receiveDriver(); // receive driver from the client.
+                    receiveDriver();
                     this->cab = taxiCenter.findCabById(this->driver->getCabId());
                     this->driver->setCab(this->cab);
-                    sendUpdateCab(this->cab); // send the cab to the client.
+                    sendUpdateCab(this->cab); // Send cab to the client.
                     taxiCenter.addDriver(this->driver);
                     numOfDrivers--;
                 }
@@ -71,26 +71,15 @@ void MainFlow::startGame() {
                 this->tripInformation = this->tripInfoParser(tripId, startX, startY, endX, endY,
                                                              numOfPassengers, tariff,
                                                              this->map, time);
-                taxiCenter.addTrip(this->tripInformation);
-                this->tripInformation = NULL;
-               // this->sendUpdateTrip(this->tripInformation);
+                taxiCenter.addTrip(this->tripInformation); // add the trip to the list of taxi center.
                 break;
 
             case 9:
                 // Start the trips.
-                this->time++; // add one to the time.
-                // In the driving we send driver to the client if the time correct.
-/*                if (*(this->driver->getcurrentPoint()) == this->tripInformation->getEndPoint()) {
-                    this->tripInformation = NULL;
-                }*/
-                if(this->tripInformation == NULL) {
-                    this->tripInformation = taxiCenter.getTripQueue()[0];
-                    this->sendMission(9);
-                    this->sendUpdateTrip(this->tripInformation);
-                }
-
-                    taxiCenter.driving(this->time, this->udp);
-                    break;
+                this->time++;
+                // Make one step and send the update driver to the client.
+                taxiCenter.driving(this->time, this->udp);
+                break;
 
             case 4:
                 // Print driver location
@@ -99,11 +88,10 @@ void MainFlow::startGame() {
                 break;
 
             case 7:
-                this->sendMission(7);
-                // End the program.
-                //this->driver = taxiCenter.getDriverVec()[0];
-                //this->driver->setCurrentPoint(NULL);
-                //sendUpdateDriver(this->driver);
+                // return.
+                this->driver = taxiCenter.getDriverVec()[0];
+                this->driver->setId(-1); // Prapere to end the client.
+                sendUpdateDriver(this->driver);
                 return;
             default:
                 throw invalid_argument("invalid number of mission\n");
@@ -115,11 +103,7 @@ Cab *MainFlow::cabParser(int cabId, int cabType, char manufacturer, char color1)
     CarManufacturer carManufacturer = CarManufacturer(manufacturer);
     Color color = Color(color1);
     FactoryCab factoryCab;
-    if (cabType == 1) {
-        return factoryCab.getCab("StandardCab", cabId, carManufacturer, color);
-    } else {
-        return factoryCab.getCab("LuxuryCab", cabId, carManufacturer, color);
-    }
+    return factoryCab.getCab(cabType, cabId, carManufacturer, color);
 }
 
 Driver *MainFlow::driverParser(int driverId, double age, char status, double experience,
@@ -158,18 +142,21 @@ void MainFlow::sendUpdateCab(Cab *cab) {
     binary_oarchive oa(s);
     oa << cab;
     s.flush();
-    udp->sendData(serial_str); // Send the cab.
+    udp->sendData(serial_str);
 }
 
 void MainFlow::receiveDriver() {
     char buffer[4096];
     udp->reciveData(buffer, sizeof(buffer));
-    char *end = buffer + 4095; // The end of the buffer pointer.
+    char *end = buffer + 4095;
     basic_array_source<char> device(buffer, end);
     boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
             device);
     binary_iarchive ia(s2);
     ia >>this->driver;
+    // update the cueernt point to the driver.
+    delete this->driver->getcurrentPoint();
+    this->driver->setCurrentPoint(this->map->getSourceElement(0,0));
 }
 
 void MainFlow::updateObstacles(){
@@ -184,21 +171,3 @@ void MainFlow::updateObstacles(){
     }
 }
 
-void MainFlow::sendUpdateTrip(TripInformation *trip) {
-    string serial_str;
-    back_insert_device<std::string> inserter(serial_str);
-    boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
-    binary_oarchive oa(s);
-    oa << trip;
-    s.flush();
-    udp->sendData(serial_str); // Send the cab.
-}
-void MainFlow::sendMission(int mission) {
-    string serial_str;
-    back_insert_device<std::string> inserter(serial_str);
-    boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
-    binary_oarchive oa(s);
-    oa << mission;
-    s.flush();
-    udp->sendData(serial_str);
-}

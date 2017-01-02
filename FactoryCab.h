@@ -22,7 +22,7 @@ public:
     FactoryCab();
 
     // The function get parameters and return a new cab - standard of luxury type.
-    Cab *getCab(string cabType, int cabId, CarManufacturer manufacturer,
+    Cab *getCab(int cabType, int cabId, CarManufacturer manufacturer,
                 Color color);
 
     virtual ~FactoryCab();

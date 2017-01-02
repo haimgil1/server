@@ -17,8 +17,6 @@ class Grid {
     {
     }
 public:
-    Grid();
-
     virtual ~Grid() = 0;
 
     // Building the graph.
@@ -35,10 +33,10 @@ public:
 
     // Getting the destination by a point.
     virtual Node *getDestinationElement(Point p)=0;
-
+    // Setting the distance of the niighbors in the "child" class.
     virtual void setDistanceNeighbors()=0;
 };
-
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Grid)
+
 
 #endif //TASK2BFS_SHAPEGRAPH_H

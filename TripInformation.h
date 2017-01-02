@@ -28,6 +28,7 @@ class TripInformation {
         ar & endPoint;
         ar & numOfPassenger;
         ar & tariff;
+        ar & map;
         ar & time;
     }
 private:

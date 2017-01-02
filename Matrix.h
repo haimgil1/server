@@ -21,7 +21,6 @@ private:
     // Members.
     int n, m;
     Node arrNode[10][10];
-
     void validate();
 
 public:

@@ -47,5 +47,10 @@ void Node::setPoint(const Point &point) {
     this->point = point;
 }
 
+Point* Node::getPointNode(){
+    return &this->point;
+}
+
+
 BOOST_CLASS_EXPORT(Node)
 

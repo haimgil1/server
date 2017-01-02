@@ -83,4 +83,5 @@ void Matrix::setDistanceNeighbors() {
     }
 }
 
+BOOST_CLASS_EXPORT(Matrix)
 

@@ -4,5 +4,3 @@
 Grid::~Grid() {
 
 }
-
-Grid::Grid() {}

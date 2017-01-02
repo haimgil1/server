@@ -18,7 +18,7 @@ class AbstractNode {
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version)
     {
-        ar & prev;
+        //ar & prev;
     }
 protected:
     // Members.
@@ -62,16 +62,15 @@ public:
     // virtual function to get obstacle.
     virtual bool getObstacle()  =0;
 
-    // virtual distractor.
     virtual ~AbstractNode() = 0;
 
     // Overriding the == operator.
     virtual bool operator==(const AbstractNode &otherNode) const =0;
-    // Overriding the != operator.
+
     virtual bool operator!=(const AbstractNode &node) const;
-    // Overriding the == operator.
+
     virtual bool operator==(const Point p) const =0;
-    // Overriding the != operator.
+
     virtual bool operator!=(const Point p) const =0;
 
 };

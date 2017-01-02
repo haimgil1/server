@@ -17,7 +17,6 @@ class StandardCab : public Cab {
     void serialize(Archive &ar, const unsigned int version)
     {
         ar & boost::serialization::base_object<Cab>(*this);
-
     }
 private:
 

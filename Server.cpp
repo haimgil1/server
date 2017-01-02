@@ -10,10 +10,9 @@ using namespace boost::iostreams;
 using namespace boost::archive;
 
 int main(int argc, char *argv[]) {
-    std::cout << "Hello, from server" << std::endl;
     MainFlow mainFlow;
     try {
-        mainFlow.startGame();
+        mainFlow.startGame(argc, argv);
     } catch (std::invalid_argument &err){
         cout << err.what();
     }

@@ -19,7 +19,6 @@ using namespace std;
  * The class contains detail on cab and some functions on cab.*/
 class Cab {
     friend class boost::serialization::access;
-
     template<class Archive>
     void serialize(Archive &ar, const unsigned int version)
     {
@@ -76,9 +75,9 @@ public:
      * or luxury change the new block by their definition. */
     virtual AbstractNode *moveOneStep(stack<AbstractNode *> *track, Point endPoint)=0;
 
-    // Overriding the == operator.
+    // Set the operator ==.
     bool operator==(const Cab &cab) const;
-    // Overriding the != operator.
+    // Set the operator !=.
     bool operator!=(const Cab &cab) const;
 };
 

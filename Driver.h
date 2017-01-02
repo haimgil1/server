@@ -48,7 +48,7 @@ public:
     // Constructor - gets the new parameters and update the members value.
     Driver(int newId, double newAge, MaritalStatus newMaterialStatus, double newExperience,
            int cabId, AbstractNode *currentPoint);
-
+    // Default constractor.
     Driver();
 
     // Destructor.
@@ -56,8 +56,10 @@ public:
 
     // The function returns the id of the driver.
     int getId() const;
+    // The function sets the id of the driver.
+    void setId(int newid);
 
-    // The function returns the age of the driver.
+        // The function returns the age of the driver.
     double getAge();
 
     // The function sets the status of the driver.
@@ -102,8 +104,9 @@ public:
     // Moving one step according to his track.
     void moveOneStep(stack<AbstractNode *> *track, Point p);
 
+    // Set the operator ==.
     bool operator==(const Driver &driver) const;
-
+    // Set the operator!= .
     bool operator!=(const Driver &driver) const;
 
     friend ostream &operator<<(std::ostream &os, const Driver &driver);

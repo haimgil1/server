@@ -17,6 +17,7 @@ Driver::Driver(int newId, double newAge, MaritalStatus newMaterialStatus, double
 }
 
 Driver::~Driver() {
+    delete cab;
 }
 
 void Driver::validate() {
@@ -28,6 +29,11 @@ void Driver::validate() {
 
 int Driver::getId() const {
     return this->id;
+}
+
+
+void Driver::setId(int newid) {
+     this->id = newid;
 }
 
 double Driver::getAge() {

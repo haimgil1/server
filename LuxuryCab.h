@@ -33,7 +33,7 @@ public:
 
     // The function change the block moveOneStep accordingly luxury cabs.
     AbstractNode *moveOneStep(stack<AbstractNode *> *track, Point endPoint);
-    // default destructor.
+
     virtual ~LuxuryCab();
 };
 
