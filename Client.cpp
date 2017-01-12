@@ -1,4 +1,4 @@
-#include "Udp.h"
+#include "Tcp.h"
 #include "Client.h"
 
 using namespace std;
@@ -13,7 +13,6 @@ int main(int argc, char *argv[]) {
     client.sendDriver();
     client.receiveCab();
     client.updateDriver();
-
     return 0;
 }
 
@@ -23,12 +22,12 @@ Client::Client() {
 
 Client::~Client() {
     delete driver;
-    delete udp;
+    delete tcp;
 }
 
 Client::Client(char *argv) {
-    this->udp = new Udp(0, atoi(argv)); // Set the udp.
-    this->udp->initialize();
+    this->tcp = new Tcp(0, atoi(argv)); // Set the tcp.
+    this->tcp->initialize();
     this->end = buffer + 4095;
     this->driver = NULL;
     this->cab = NULL;
@@ -47,7 +46,7 @@ void Client::scanDriver() {
 }
 
 void Client::receiveCab() {
-    this->udp->reciveData(buffer, sizeof(buffer));
+    this->tcp->reciveData(buffer, sizeof(buffer));
     basic_array_source<char> device(buffer, end);
     boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
             device);
@@ -63,22 +62,22 @@ void Client::sendDriver() {
     binary_oarchive oa(s);
     oa << this->driver;
     s.flush();
-    this->udp->sendData(serial_str);
+    this->tcp->sendData(serial_str);
 }
 
 void Client::updateDriver() {
     while (true) {
         // check if the driver is not null to delete driver.
-        if(this->driver!=NULL) {
+        if (this->driver != NULL) {
             // check if the point in the driver is not null to delete the point.
-            if(this->driver->getcurrentPoint() != NULL) {
+            if (this->driver->getcurrentPoint() != NULL) {
                 delete this->driver->getcurrentPoint();
-               }
+            }
             delete this->driver;
             this->driver = NULL;
         }
         // get the driver from the server.
-        this->udp->reciveData(buffer, sizeof(buffer));
+        this->tcp->reciveData(buffer, sizeof(buffer));
         basic_array_source<char> device(buffer, end);
         boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
                 device);

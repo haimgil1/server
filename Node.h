@@ -12,8 +12,7 @@ class Node : public AbstractNode {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
+    void serialize(Archive &ar, const unsigned int version) {
         ar & boost::serialization::base_object<AbstractNode>(*this);
         ar & point;
     }
@@ -54,7 +53,7 @@ public:
     // Setting the point.
     void setPoint(const Point &point);
 
-    Point* getPointNode();
+    Point *getPointNode();
 
     // Getting the point.
     const Point &getPoint() const;

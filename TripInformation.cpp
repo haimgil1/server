@@ -1,18 +1,15 @@
-
-
 #include "TripInformation.h"
-
 TripInformation::TripInformation() {
 
 }
 
 TripInformation::TripInformation(int newRideId, Point newStartPoint,
                                  Point newEndPoint, int newNumOfPassenger, double newTariff,
-                                 Grid *newMap, double newTime) {
+                                 Grid *newMap, double newTime,pthread_mutex_t trackLock) {
     this->rideId = newRideId;
     this->driver = NULL;
     this->totalMetersPassed = 0; // Reset the total meter passed to "0".
-    this->time=newTime;
+    this->time = newTime;
     this->startPoint = newStartPoint;
     this->endPoint = newEndPoint;
     this->numOfPassenger = newNumOfPassenger;
@@ -20,7 +17,10 @@ TripInformation::TripInformation(int newRideId, Point newStartPoint,
     this->map = newMap;
     this->validate(); // Check validate of the parameters.
     this->bfs = new Bfs();
-    this->settingTrack();
+//    this->tripThread = newTripThread;
+    this->trackLock = trackLock;
+    this->finishCalcTrack = false;
+    //this->settingTrack();
 }
 
 TripInformation::~TripInformation() {
@@ -38,13 +38,6 @@ int TripInformation::getRideId() {
     return this->rideId;
 }
 
-void TripInformation::setMeterPassed(int meters) {
-    this->totalMetersPassed += meters;
-}
-
-void TripInformation::setEndPoint(Point p) {
-    this->endPoint = p;
-}
 
 Point TripInformation::getEndPoint() {
     return this->endPoint;
@@ -88,19 +81,25 @@ vector<Passenger *> TripInformation::getPassenger() {
     return this->passengers;
 }
 
-void TripInformation::settingTrack() {
-    track = bfs->BfsAlgorithm(map->getSourceElement(this->startPoint),
-                              map->getDestinationElement(this->endPoint));
-    this->map->setDistanceNeighbors();
+void* TripInformation::settingTrack(void *ptr) {
+
+    TripInformation *trip= (TripInformation *) ptr;
+    pthread_mutex_lock(&trip->getTrackLock());
+    cout << "start\n";
+    stack<AbstractNode *> track=trip->getBfs()->BfsAlgorithm
+            (trip->getMap()->getSourceElement(trip->getStartPoint()),
+             trip->getMap()->getSourceElement(trip->getEndPoint()));
+
+    trip->setTrack(track);
+    trip->getMap()->setDistanceNeighbors();
+    pthread_mutex_unlock(&trip->getTrackLock());
+    cout << "end\n";
+    trip->setIsFinishCalcTrack(true);
 
 }
 
 Grid *TripInformation::getMap() {
     return this->map;
-}
-
-void TripInformation::setMap(Grid *map) {
-    this->map = map;
 }
 
 Driver *TripInformation::getDriver() const {
@@ -117,9 +116,9 @@ void TripInformation::setDriver(Driver *driver) {
 }
 
 void TripInformation::moveOneStep() {
-    if (*(this->driver->getcurrentPoint()) != this->endPoint){
+    if (*(this->driver->getcurrentPoint()) != this->endPoint) {
         this->driver->moveOneStep(&track, this->endPoint);
-    }else{
+    } else {
         this->driver->setOccupied(false);
     }
 
@@ -129,7 +128,7 @@ void TripInformation::moveTrail() {
     while (*(this->driver->getcurrentPoint()) != this->endPoint) {
         this->moveOneStep();
     }
-    //this->driver->setOccupied(false);
+    this->driver->setOccupied(false);
 
 }
 
@@ -152,4 +151,28 @@ bool TripInformation::operator!=(const TripInformation &trip) const {
 
 double TripInformation::getTime() const {
     return time;
+}
+
+void TripInformation::setTrack(stack<AbstractNode *> newTrack) {
+    track = newTrack;
+}
+
+Searchable *TripInformation::getBfs() const {
+    return bfs;
+}
+
+bool TripInformation::isFinishCalcTrack() const {
+    return finishCalcTrack;
+}
+
+void TripInformation::setIsFinishCalcTrack(bool isFinishCalcTrack) {
+    TripInformation::finishCalcTrack = isFinishCalcTrack;
+}
+
+pthread_mutex_t &TripInformation::getTrackLock()  {
+    return trackLock;
+}
+
+pthread_t &TripInformation::getTripThread()  {
+    return tripThread;
 }

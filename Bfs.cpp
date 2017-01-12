@@ -4,6 +4,7 @@
 using namespace std;
 
 stack<AbstractNode *> Bfs::BfsAlgorithm(AbstractNode *source, AbstractNode *destination) {
+
     stack<AbstractNode *> stackTrail; // Use for printing in right order.
     queue<AbstractNode *> queue; // Use to save the track.
     AbstractNode *currNode;

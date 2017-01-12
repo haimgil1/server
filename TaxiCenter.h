@@ -28,6 +28,7 @@ private:
     vector<Driver *> drivers;
     vector<Cab *> cabs;
     vector<TripInformation *> trips;
+    vector<pthread_t> tripsThreads;
     Grid *map;
 
 public:
@@ -86,11 +87,13 @@ public:
      * @param newCab
      */
     void removeCab(Cab *newCab);
+
     /**
      * The function removes trip from trip list.
      * @param newTrip
      */
     void removeTrip(TripInformation *newTrip);
+
     /**
      * The function print the location of the driver.
      * @param driverId
@@ -132,9 +135,12 @@ public:
 
     void sendUpdateDriver(Driver *driver, Socket *udp);
 
+    void addTripsThread(pthread_t pt);
+
+    void removeTripsThread(pthread_t pt);
+
     virtual ~TaxiCenter();
 };
-
 
 
 #endif //TASK2BFS_TAXICENTER_H

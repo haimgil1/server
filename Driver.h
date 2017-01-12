@@ -15,9 +15,9 @@
  * The class has derails on driver and has some functions. */
 class Driver {
     friend class boost::serialization::access;
+
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
+    void serialize(Archive &ar, const unsigned int version) {
         ar & id;
         ar & age;
         ar & materialStatus;
@@ -30,6 +30,7 @@ class Driver {
         ar & occupied;
 
     }
+
 private:
     // Members.
     int id;
@@ -42,12 +43,14 @@ private:
     AbstractNode *currentPoint;
     Cab *cab;
     bool occupied;
+
     void validate();
 
 public:
     // Constructor - gets the new parameters and update the members value.
     Driver(int newId, double newAge, MaritalStatus newMaterialStatus, double newExperience,
            int cabId, AbstractNode *currentPoint);
+
     // Default constructor.
     Driver();
 
@@ -56,10 +59,11 @@ public:
 
     // The function returns the id of the driver.
     int getId() const;
+
     // The function sets the id of the driver.
     void setId(int newid);
 
-        // The function returns the age of the driver.
+    // The function returns the age of the driver.
     double getAge();
 
     // The function sets the status of the driver.

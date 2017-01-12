@@ -182,7 +182,9 @@ TEST_P(DerivedTest, DoesBlah) {
 #include "gtest/internal/gtest-port.h"
 
 #if !GTEST_OS_SYMBIAN
+
 # include <utility>
+
 #endif
 
 // scripts/fuse_gtest.py depends on gtest's own header being #included
@@ -1387,11 +1389,11 @@ internal::CartesianProductHolder10<Generator1, Generator2, Generator3,
     static int AddToRegistry() { \
       ::testing::UnitTest::GetInstance()->parameterized_test_registry(). \
           GetTestCasePatternHolder<test_case_name>(\
-              #test_case_name, \
+#test_case_name, \
               ::testing::internal::CodeLocation(\
                   __FILE__, __LINE__))->AddTestPattern(\
-                      #test_case_name, \
-                      #test_name, \
+#test_case_name, \
+#test_name, \
                       new ::testing::internal::TestMetaFactory< \
                           GTEST_TEST_CLASS_NAME_(\
                               test_case_name, test_name)>()); \
@@ -1429,10 +1431,10 @@ internal::CartesianProductHolder10<Generator1, Generator2, Generator3,
   int gtest_##prefix##test_case_name##_dummy_ GTEST_ATTRIBUTE_UNUSED_ = \
       ::testing::UnitTest::GetInstance()->parameterized_test_registry(). \
           GetTestCasePatternHolder<test_case_name>(\
-              #test_case_name, \
+#test_case_name, \
               ::testing::internal::CodeLocation(\
                   __FILE__, __LINE__))->AddTestCaseInstantiation(\
-                      #prefix, \
+#prefix, \
                       &gtest_##prefix##test_case_name##_EvalGenerator_, \
                       &gtest_##prefix##test_case_name##_EvalGenerateName_, \
                       __FILE__, __LINE__)

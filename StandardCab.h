@@ -5,6 +5,7 @@
 
 #include "Cab.h"
 #include <string>
+
 using namespace std;
 
 /* Class: StandardCab.
@@ -14,15 +15,16 @@ class StandardCab : public Cab {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
+    void serialize(Archive &ar, const unsigned int version) {
         ar & boost::serialization::base_object<Cab>(*this);
     }
+
 private:
 
 public:
     // Constructor.
-    StandardCab(int cabId=0, CarManufacturer manufacturer= CarManufacturer::FIAT, Color color = Color::RED);
+    StandardCab(int cabId = 0, CarManufacturer manufacturer = CarManufacturer::FIAT,
+                Color color = Color::RED);
 
     // the function calculate the new tariff of standard cabs.
     int getCoefficient();

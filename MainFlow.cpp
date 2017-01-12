@@ -1,28 +1,34 @@
 
 #include "MainFlow.h"
 #include "FactoryCab.h"
+#include "Tcp.h"
+#include <pthread.h>
+
 
 using namespace std;
 using namespace boost::iostreams;
 using namespace boost::archive;
+
+pthread_mutex_t trackLock;
 
 MainFlow::MainFlow() {
     this->cab = NULL;
     this->driver = NULL;
     this->tripInformation = NULL;
     this->map = NULL;
-    this->udp = NULL;
+    this->tcp = NULL;
+    this->tripThread = NULL;
     this->time = 0;
 }
 
 MainFlow::~MainFlow() {
-    delete udp;
+    delete tcp;
     delete map;
 }
 
-void MainFlow::startGame(int argc, char *argv[]) {
+void MainFlow::startGame(char *argv[]) {
 
-    int sizeX, sizeY,driverId;
+    int sizeX, sizeY, driverId;
     char dummy;
     int numOfDrivers;
     cin >> sizeX >> sizeY; // Get the n,m of the map.
@@ -45,8 +51,8 @@ void MainFlow::startGame(int argc, char *argv[]) {
             case 1:  // Get driver parameters.
                 cin >> numOfDrivers;
                 while (numOfDrivers > 0) { // Getting the drivers.
-                    this->udp = new Udp(1, atoi(argv[1])); // Set the port to udp.
-                    udp->initialize();
+                    this->tcp = new Tcp(1, atoi(argv[1])); // Set the port to tcp.
+                    tcp->initialize();
                     receiveDriver();
                     this->cab = taxiCenter.findCabById(this->driver->getCabId());
                     this->driver->setCab(this->cab);
@@ -71,14 +77,17 @@ void MainFlow::startGame(int argc, char *argv[]) {
                 this->tripInformation = this->tripInfoParser(tripId, startX, startY, endX, endY,
                                                              numOfPassengers, tariff,
                                                              this->map, time);
-                taxiCenter.addTrip(this->tripInformation); // add the trip to the list of taxi center.
+                createTripThread(this->tripInformation);
+                taxiCenter.addTripsThread(this->tripThread);
+                taxiCenter.addTrip(
+                        this->tripInformation); // add the trip to the list of taxi center.
                 break;
 
             case 9:
                 // Start the trips.
                 this->time++;
                 // Make one step and send the update driver to the client.
-                taxiCenter.driving(this->time, this->udp);
+                taxiCenter.driving(this->time, this->tcp);
                 break;
 
             case 4:
@@ -118,7 +127,7 @@ TripInformation *MainFlow::tripInfoParser(int tripId, int startX, int startY, in
                                           Grid *map, double time) {
     Point startP(startX, startY);
     Point endP(endX, endY);
-    return new TripInformation(tripId, startP, endP, numOfPassengers, tariff, map, time);
+    return new TripInformation(tripId, startP, endP, numOfPassengers, tariff, map, time, trackLock);
 }
 
 Grid *MainFlow::MapParser(int n, int m) {
@@ -132,7 +141,7 @@ void MainFlow::sendUpdateDriver(Driver *driver) {
     binary_oarchive oa(s);
     oa << driver;
     s.flush();
-    udp->sendData(serial_str);
+    tcp->sendData(serial_str);
 }
 
 void MainFlow::sendUpdateCab(Cab *cab) {
@@ -142,24 +151,24 @@ void MainFlow::sendUpdateCab(Cab *cab) {
     binary_oarchive oa(s);
     oa << cab;
     s.flush();
-    udp->sendData(serial_str);
+    tcp->sendData(serial_str);
 }
 
 void MainFlow::receiveDriver() {
     char buffer[4096];
-    udp->reciveData(buffer, sizeof(buffer));
+    tcp->reciveData(buffer, sizeof(buffer));
     char *end = buffer + 4095;
     basic_array_source<char> device(buffer, end);
     boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
             device);
     binary_iarchive ia(s2);
-    ia >>this->driver;
-    // update the cueernt point to the driver.
+    ia >> this->driver;
+    // update the current point to the driver.
     delete this->driver->getcurrentPoint();
-    this->driver->setCurrentPoint(this->map->getSourceElement(0,0));
+    this->driver->setCurrentPoint(this->map->getSourceElement(0, 0));
 }
 
-void MainFlow::updateObstacles(){
+void MainFlow::updateObstacles() {
     char dummy;
     int numOfObstacles;
     cin >> numOfObstacles; // Get number of obstacles.
@@ -168,6 +177,14 @@ void MainFlow::updateObstacles(){
         cin >> px >> dummy >> py;
         this->map->getSourceElement(px, py)->setObstacle(true);
         numOfObstacles--;
+    }
+}
+
+void MainFlow::createTripThread(TripInformation *trip) {
+    int status = pthread_create(&trip->getTripThread(), NULL,
+                                trip->settingTrack, (void *) trip);
+    if (status){
+        cout << "Not good";
     }
 }
 

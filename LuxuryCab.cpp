@@ -27,4 +27,5 @@ AbstractNode *LuxuryCab::moveOneStep(stack<AbstractNode *> *track, Point endPoin
 LuxuryCab::~LuxuryCab() {
 
 }
+
 BOOST_CLASS_EXPORT(LuxuryCab)

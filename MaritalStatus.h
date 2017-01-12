@@ -8,7 +8,7 @@
 // Enum class - has kind of marital status.
 enum class MaritalStatus {
     // Marital types.
-    SINGLE = 'S',
+            SINGLE = 'S',
     MARRIED = 'M',
     DIVORCED = 'D',
     WIDOWED = 'W'
