@@ -21,19 +21,19 @@ using namespace std;
 using namespace boost::archive;
 using namespace boost::serialization;
 
-//std::stringstream ss;
 class Point {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
+    void serialize(Archive &ar, const unsigned int version) {
         ar & x;
         ar & y;
     }
+
 private:
     // Members.
     int x, y;
+
     void validate();
 
 public:

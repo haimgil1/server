@@ -1,5 +1,4 @@
 
-
 #include "StandardCab.h"
 
 StandardCab::StandardCab(int cabId1, CarManufacturer manufacturer1,
@@ -22,4 +21,5 @@ AbstractNode *StandardCab::moveOneStep(stack<AbstractNode *> *track, Point endPo
 StandardCab::~StandardCab() {
 
 }
+
 BOOST_CLASS_EXPORT(StandardCab)

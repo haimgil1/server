@@ -1,6 +1,3 @@
-//
-// Created by haim gil on 30/12/2016.
-//
 
 #ifndef EX4_CLIENT_H
 #define EX4_CLIENT_H
@@ -26,26 +23,32 @@ class Client {
 public:
     Client();
 
+    // Constructor.
     Client(char *argv);
 
+    // Distructor.
     virtual ~Client();
 
+    // Scannig a driver.
     void scanDriver();
 
+    // Send  the driver to the server.
     void sendDriver();
 
+    // Receive a cab from the server.
     void receiveCab();
 
+    // Receive the update driver after moving one step.
     void updateDriver();
+
 private:
-    Socket *udp;
+    //Members.
+    Socket *tcp;
     char buffer[4096];
     char *end;
-    Driver* driver;
-    Cab* cab;
-    AbstractNode* node;
-
-
+    Driver *driver;
+    Cab *cab;
+    AbstractNode *node;
 };
 
 #endif //EX4_CLIENT_H

@@ -7,6 +7,7 @@
 #include <ostream>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
+
 using namespace std;
 
 /*Class: AbstractNode.
@@ -16,10 +17,10 @@ class AbstractNode {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
+    void serialize(Archive &ar, const unsigned int version) {
         //ar & prev;
     }
+
 protected:
     // Members.
     AbstractNode *prev;
@@ -74,5 +75,6 @@ public:
     virtual bool operator!=(const Point p) const =0;
 
 };
+
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(AbstractNode)
 #endif //TASK2BFS_ABSTRACTNODE_H

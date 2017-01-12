@@ -9,6 +9,7 @@
 #include "Point.h"
 #include <list>
 #include "Driver.h"
+#include "TwoPoints.h"
 #include <stdexcept>
 #include <algorithm>
 
@@ -21,8 +22,7 @@ class TripInformation {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
+    void serialize(Archive &ar, const unsigned int version) {
         ar & rideId;
         ar & startPoint;
         ar & endPoint;
@@ -31,6 +31,7 @@ class TripInformation {
         ar & map;
         ar & time;
     }
+
 private:
     // Members.
     int rideId;
@@ -38,8 +39,6 @@ private:
     int numOfPassenger;
     double tariff;
     double time;
-
-private:
     Point startPoint;
     Point endPoint;
     vector<Passenger *> passengers;
@@ -47,7 +46,9 @@ private:
     stack<AbstractNode *> track;
     Searchable *bfs;
     Grid *map;
-
+    bool finishCalcTrack;
+    pthread_mutex_t trackLock;
+    pthread_t tripThread;
     void validate();
 
 public:
@@ -58,19 +59,13 @@ public:
 
     // Constructor.
     TripInformation(int newRideId, Point newStartPoint, Point newEndPoint, int newNumOfPassenger,
-                    double newTariff, Grid *newMap, double newTime);
+                    double newTariff, Grid *newMap, double newTime,pthread_mutex_t trackLock);
 
     // The function returns the ride id.
     int getRideId();
 
-    // ser the current point.
-    void setMeterPassed(int meters);
-
     // The function returns the current point.
     int getMeterPassed();
-
-    // The function sets the end point.
-    void setEndPoint(Point p);
 
     // The function returns the end point.
     Point getEndPoint();
@@ -91,7 +86,7 @@ public:
     double getTariff();
 
     // The function return the best way to passenger.
-    void settingTrack();
+     static void* settingTrack(void *ptr);
 
     // The function returns the map of the town.
     Grid *getMap();
@@ -104,9 +99,6 @@ public:
 
     // The function returns the list of passenger.
     vector<Passenger *> getPassenger();
-
-    // The function sets the map of the town.
-    void setMap(Grid *map);
 
     // The function returns a driver.
     Driver *getDriver() const;
@@ -130,6 +122,18 @@ public:
 
     // The operator to compare TripInformation object.
     bool operator!=(const TripInformation &trip) const;
+
+    void setTrack(stack<AbstractNode *> newTrack);
+
+    Searchable *getBfs() const;
+
+    bool isFinishCalcTrack() const;
+
+    void setIsFinishCalcTrack(bool isFinishCalcTrack);
+
+    pthread_mutex_t &getTrackLock();
+
+    pthread_t &getTripThread() ;
 };
 
 

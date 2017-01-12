@@ -19,14 +19,15 @@ using namespace std;
  * The class contains detail on cab and some functions on cab.*/
 class Cab {
     friend class boost::serialization::access;
+
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
+    void serialize(Archive &ar, const unsigned int version) {
         ar & cabId;
         ar & klmPassed;
         ar & manufacturer;
         ar & color;
     }
+
 protected:
     // Members.
     int cabId;
@@ -77,6 +78,7 @@ public:
 
     // Set the operator ==.
     bool operator==(const Cab &cab) const;
+
     // Set the operator !=.
     bool operator!=(const Cab &cab) const;
 };

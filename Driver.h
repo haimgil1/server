@@ -15,9 +15,9 @@
  * The class has derails on driver and has some functions. */
 class Driver {
     friend class boost::serialization::access;
+
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
+    void serialize(Archive &ar, const unsigned int version) {
         ar & id;
         ar & age;
         ar & materialStatus;
@@ -30,6 +30,7 @@ class Driver {
         ar & occupied;
 
     }
+
 private:
     // Members.
     int id;
@@ -42,13 +43,15 @@ private:
     AbstractNode *currentPoint;
     Cab *cab;
     bool occupied;
+
     void validate();
 
 public:
     // Constructor - gets the new parameters and update the members value.
     Driver(int newId, double newAge, MaritalStatus newMaterialStatus, double newExperience,
            int cabId, AbstractNode *currentPoint);
-    // Default constractor.
+
+    // Default constructor.
     Driver();
 
     // Destructor.
@@ -56,10 +59,11 @@ public:
 
     // The function returns the id of the driver.
     int getId() const;
+
     // The function sets the id of the driver.
     void setId(int newid);
 
-        // The function returns the age of the driver.
+    // The function returns the age of the driver.
     double getAge();
 
     // The function sets the status of the driver.
@@ -106,11 +110,9 @@ public:
 
     // Set the operator ==.
     bool operator==(const Driver &driver) const;
+
     // Set the operator!= .
     bool operator!=(const Driver &driver) const;
-
-    friend ostream &operator<<(std::ostream &os, const Driver &driver);
-
 
     // Checking if the driver is isOccupied.
     bool isOccupied() const;

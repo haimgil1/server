@@ -1,6 +1,5 @@
 
 #include "TaxiCenter.h"
-#include <iostream>
 
 using namespace std;
 using namespace boost::iostreams;
@@ -102,24 +101,30 @@ Driver *TaxiCenter::findDriverById(int driverId) {
 }
 
 void TaxiCenter::driving(double time, Socket *udp) {
-
     // Assigning driver to a trip.
     for (int i = 0; i < (int) this->trips.size(); i++) {
-        Driver *driver = this->findClosestDriverByTripLocation(this->trips[i]->getStartPoint());
-        if (driver != NULL) {
-            this->trips[i]->setDriver(driver);
+        TripInformation *trip = this->trips[i];
+        if (trip->getTime() <= time && trip->getDriver()== NULL){
+            Driver *driver = this->findClosestDriverByTripLocation(trip->getStartPoint());
+            if (driver != NULL) {
+                trip->setDriver(driver);
+            }
         }
     }
 
     // Starting the track and remove from list.
     for (int i = 0; i < (int) this->trips.size(); i++) {
-        if (this->trips[i]->getDriver() != NULL && this->trips[i]->getTime() < time) {
-            this->trips[i]->moveOneStep();
+        TripInformation *trip = this->trips[i];
+        if (trip->getDriver() != NULL && trip->getTime() < time) {
+            if (!trip->isFinishCalcTrack()){
+                pthread_join(trip->getTripThread(), NULL);
+            }
+            trip->moveOneStep();
             // send the driver to the client.
-            this->sendUpdateDriver(this->trips[i]->getDriver(), udp);
-            if (!this->trips[i]->getDriver()->isOccupied()){
-                TripInformation *trip = this->trips[i];
-                this->removeTrip(this->trips[i]);
+            this->sendUpdateDriver(trip->getDriver(), udp);
+            // Checking if the trip is done.
+            if (!trip->getDriver()->isOccupied()) {
+                this->removeTrip(trip);
                 delete trip;
                 i--;
             }
@@ -155,4 +160,12 @@ void TaxiCenter::sendUpdateDriver(Driver *driver, Socket *udp) {
     oa << driver;
     s.flush();
     udp->sendData(serial_str);
+}
+
+void TaxiCenter::addTripsThread(pthread_t pt) {
+    this->tripsThreads.push_back(pt);
+}
+
+void TaxiCenter::removeTripsThread(pthread_t pt) {
+    tripsThreads.erase(std::remove(tripsThreads.begin(), tripsThreads.end(), pt), tripsThreads.end());
 }

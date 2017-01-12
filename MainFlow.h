@@ -23,12 +23,15 @@ private:
     TripInformation *tripInformation;
     Grid *map;
     double time;
-    Socket *udp;
+    Socket *tcp;
+    pthread_t tripThread;
 public:
     // Default constructor.
     MainFlow();
+
     // start the game to get the parameters and run the game.
-    void startGame(int argc, char *argv[]);
+    void startGame(char *argv[]);
+
     // destructor.
     virtual ~MainFlow();
 
@@ -42,18 +45,24 @@ public:
     // The function gets parameters and return a trip information.
     TripInformation *tripInfoParser(int tripId, int startX, int startY, int endX, int endY,
                                     int numOfPassengers, double tariff,
-                                    Grid *map,double time);
+                                    Grid *map, double time);
 
     // The function gets parameters and return a map.
     Grid *MapParser(int n, int m);
+
     // The function send driver from the server to the client.
     void sendUpdateDriver(Driver *driver);
+
     // The function send cab from the server to the client.
     void sendUpdateCab(Cab *cab);
+
     // The function receive driver from the client.
     void receiveDriver();
+
     // The function update the obstacle in the map.
     void updateObstacles();
+
+    void createTripThread(TripInformation *trip);
 
 };
 

@@ -6,7 +6,7 @@
 // Enum class - has kinds of car manufacturer.
 enum class CarManufacturer {
     // Types of car.
-    HONDA = 'H',
+            HONDA = 'H',
     SUBARO = 'S',
     TESLA = 'T',
     FIAT = 'F'

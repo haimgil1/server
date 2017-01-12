@@ -17,16 +17,17 @@ class LuxuryCab : public Cab {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
+    void serialize(Archive &ar, const unsigned int version) {
         ar & boost::serialization::base_object<Cab>(*this);
 
     }
+
 private:
 
 public:
     // Constructor.
-    LuxuryCab(int cabId=1, CarManufacturer manufacturer= CarManufacturer::FIAT, Color color = Color::RED);
+    LuxuryCab(int cabId = 1, CarManufacturer manufacturer = CarManufacturer::FIAT,
+              Color color = Color::RED);
 
     // The function calculate the new tariff of luxury cabs.
     int getCoefficient();

@@ -5,6 +5,7 @@
 #include "Node.h"
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
+
 /* A Grid class is an interface that holds a graph,
  * a source point and destination point.
    The grid it's a general shape.
@@ -13,9 +14,9 @@ class Grid {
     friend class boost::serialization::access;
 
     template<class Archive>
-    void serialize(Archive &ar, const unsigned int version)
-    {
+    void serialize(Archive &ar, const unsigned int version) {
     }
+
 public:
     virtual ~Grid() = 0;
 
@@ -33,9 +34,11 @@ public:
 
     // Getting the destination by a point.
     virtual Node *getDestinationElement(Point p)=0;
+
     // Setting the distance of the niighbors in the "child" class.
     virtual void setDistanceNeighbors()=0;
 };
+
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Grid)
 
 
