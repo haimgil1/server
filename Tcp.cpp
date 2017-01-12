@@ -80,6 +80,7 @@ int Tcp::initialize() {
                 return ERROR_ACCEPT;
             }
              // create thread.
+            // create task1
             pthread_create(&arrpthread[ithread], NULL, task1, NULL);
             ithread++;
         }
