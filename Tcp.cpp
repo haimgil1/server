@@ -5,6 +5,9 @@
 ************************************************************/
 
 #include "Tcp.h"
+#include <pthread.h>
+#include <vector>
+
 
 /***********************************************************************
 * function name: Tcp												   *
@@ -46,6 +49,8 @@ int Tcp::initialize() {
     }
     //if server
     if (this->isServer) {
+        //std::vector<pthread_t> vecthread;
+        pthread_t arrpthread [10];
         //initialize the struct
         struct sockaddr_in sin;
         memset(&sin, 0, sizeof(sin));
@@ -66,11 +71,17 @@ int Tcp::initialize() {
         //accept
         struct sockaddr_in client_sin;
         unsigned int addr_len = sizeof(client_sin);
-        this->descriptorCommunicateClient = accept(this->socketDescriptor,
-                                                   (struct sockaddr *) &client_sin, &addr_len);
-        if (this->descriptorCommunicateClient < 0) {
-            //return an error represent error at this method
-            return ERROR_ACCEPT;
+        int ithread=0;
+        while(1) {
+            this->descriptorCommunicateClient = accept(this->socketDescriptor,
+                                                       (struct sockaddr *) &client_sin, &addr_len);
+            if (this->descriptorCommunicateClient < 0) {
+                //return an error represent error at this method
+                return ERROR_ACCEPT;
+            }
+             // create thread.
+            pthread_create(&arrpthread[ithread], NULL, task1, NULL);
+            ithread++;
         }
         //if client
     } else {
