@@ -24,13 +24,15 @@ private:
     Grid *map;
     double time;
     Socket *tcp;
-    pthread_t tripThread;
+    pthread_t  tripThread;
+    int descriptorVec[10];
+    int tempDescriptor;
 public:
     // Default constructor.
-    MainFlow();
+    MainFlow(char *argv[]);
 
     // start the game to get the parameters and run the game.
-    void startGame(char *argv[]);
+    void startGame();
 
     // destructor.
     virtual ~MainFlow();
@@ -51,13 +53,13 @@ public:
     Grid *MapParser(int n, int m);
 
     // The function send driver from the server to the client.
-    void sendUpdateDriver(Driver *driver);
+    void sendUpdateDriver(Driver *driver,int descriptor);
 
     // The function send cab from the server to the client.
-    void sendUpdateCab(Cab *cab);
+    void sendUpdateCab(Cab *cab,int descriptor);
 
     // The function receive driver from the client.
-    void receiveDriver();
+    void receiveDriver(int descriptor);
 
     // The function update the obstacle in the map.
     void updateObstacles();
