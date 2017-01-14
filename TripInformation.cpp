@@ -1,4 +1,5 @@
 #include "TripInformation.h"
+#include "easyloggingpp-8.91/easylogging++.h"
 TripInformation::TripInformation() {
 
 }
@@ -85,7 +86,7 @@ void* TripInformation::settingTrack(void *ptr) {
 
     TripInformation *trip= (TripInformation *) ptr;
     pthread_mutex_lock(&trip->getTrackLock());
-    cout << "start\n";
+    LINFO << "start\n";
     stack<AbstractNode *> track=trip->getBfs()->BfsAlgorithm
             (trip->getMap()->getSourceElement(trip->getStartPoint()),
              trip->getMap()->getSourceElement(trip->getEndPoint()));
@@ -93,9 +94,8 @@ void* TripInformation::settingTrack(void *ptr) {
     trip->setTrack(track);
     trip->getMap()->setDistanceNeighbors();
     pthread_mutex_unlock(&trip->getTrackLock());
-    cout << "end\n";
     trip->setIsFinishCalcTrack(true);
-
+    LINFO << "end\n";
 }
 
 Grid *TripInformation::getMap() {

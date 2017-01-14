@@ -41,6 +41,9 @@ public:
     // Receive the update driver after moving one step.
     void updateDriver();
 
+    void receiveInt();
+
+    void sendInt();
 private:
     //Members.
     Socket *tcp;
@@ -49,6 +52,7 @@ private:
     Driver *driver;
     Cab *cab;
     AbstractNode *node;
+    //int accept;
 };
 
 #endif //EX4_CLIENT_H

@@ -28,7 +28,7 @@ private:
     vector<Driver *> drivers;
     vector<Cab *> cabs;
     vector<TripInformation *> trips;
-    vector<pthread_t> tripsThreads;
+    //vector<pthread_t> tripsThreads;
     Grid *map;
 
 public:
@@ -100,11 +100,6 @@ public:
      */
     void printDriverLocation(int driverId);
 
-    /**
-     * The function gets passenger and start a nw trip information.
-     * @param p
-     */
-    void answerCall(Passenger *p);
 
     /**
      * The functions gets id of cab and return the cab.
@@ -131,13 +126,9 @@ public:
     /**
      * Start the trips.
      */
-    void driving(double time, Socket *udp);
+    void driving(double time, Socket *tcp,int descriptorVec[]);
 
-    void sendUpdateDriver(Driver *driver, Socket *udp);
-
-    void addTripsThread(pthread_t pt);
-
-    void removeTripsThread(pthread_t pt);
+    void sendUpdateDriver(Driver *driver, Socket *tcp,int descriptor);
 
     virtual ~TaxiCenter();
 };

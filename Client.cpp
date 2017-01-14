@@ -1,6 +1,7 @@
 #include "Tcp.h"
 #include "Client.h"
 
+#include "easyloggingpp-8.91/easylogging++.h"
 using namespace std;
 using namespace boost::iostreams;
 using namespace boost::archive;
@@ -10,6 +11,8 @@ using namespace std;
 int main(int argc, char *argv[]) {
     Client client(argv[2]);
     client.scanDriver();
+//    client.sendInt();
+//    client.receiveInt();
     client.sendDriver();
     client.receiveCab();
     client.updateDriver();
@@ -28,6 +31,7 @@ Client::~Client() {
 Client::Client(char *argv) {
     this->tcp = new Tcp(0, atoi(argv)); // Set the tcp.
     this->tcp->initialize();
+    //this->accept = this->tcp->acceptDescriptorCommunicate();
     this->end = buffer + 4095;
     this->driver = NULL;
     this->cab = NULL;
@@ -46,7 +50,7 @@ void Client::scanDriver() {
 }
 
 void Client::receiveCab() {
-    this->tcp->reciveData(buffer, sizeof(buffer));
+    this->tcp->reciveData(buffer, sizeof(buffer), 1);
     basic_array_source<char> device(buffer, end);
     boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
             device);
@@ -62,7 +66,7 @@ void Client::sendDriver() {
     binary_oarchive oa(s);
     oa << this->driver;
     s.flush();
-    this->tcp->sendData(serial_str);
+    this->tcp->sendData(serial_str,1);
 }
 
 void Client::updateDriver() {
@@ -77,15 +81,39 @@ void Client::updateDriver() {
             this->driver = NULL;
         }
         // get the driver from the server.
-        this->tcp->reciveData(buffer, sizeof(buffer));
+        this->tcp->reciveData(buffer, sizeof(buffer),1);
         basic_array_source<char> device(buffer, end);
         boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
                 device);
         binary_iarchive ia(s2);
         ia >> this->driver;
+        LINFO << driver->getId();
         if (this->driver->getId() == -1) { // check if close the client session.
             delete this->driver->getcurrentPoint(); // delete the driver.
             break;
         }
     }
+}
+
+void Client::receiveInt() {
+    int  num;
+    this->tcp->reciveData(buffer, sizeof(buffer),this->tcp->acceptDescriptorCommunicate());
+    basic_array_source<char> device(buffer, end);
+    boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
+            device);
+    binary_iarchive ia(s2);
+    ia >> num;
+    cout<<num;
+}
+
+void Client::sendInt() {
+    string serial_str;
+    int num;
+    cin >> num;
+    back_insert_device<std::string> inserter(serial_str);
+    boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
+    binary_oarchive oa(s);
+    oa << num;
+    s.flush();
+    this->tcp->sendData(serial_str,this->tcp->acceptDescriptorCommunicate());
 }

@@ -1,5 +1,6 @@
 
 #include "TaxiCenter.h"
+#include "easyloggingpp-8.91/easylogging++.h"
 
 using namespace std;
 using namespace boost::iostreams;
@@ -61,10 +62,6 @@ void TaxiCenter::printDriverLocation(int driverId) {
     }
 }
 
-void TaxiCenter::answerCall(Passenger *p) {
-    // In the next exercise we implements this function.
-    return;
-}
 
 Cab *TaxiCenter::findCabById(int vehicleId) {
 
@@ -100,7 +97,7 @@ Driver *TaxiCenter::findDriverById(int driverId) {
     return NULL;
 }
 
-void TaxiCenter::driving(double time, Socket *udp) {
+void TaxiCenter::driving(double time, Socket *tcp,int descriptorVec[]) {
     // Assigning driver to a trip.
     for (int i = 0; i < (int) this->trips.size(); i++) {
         TripInformation *trip = this->trips[i];
@@ -115,18 +112,21 @@ void TaxiCenter::driving(double time, Socket *udp) {
     // Starting the track and remove from list.
     for (int i = 0; i < (int) this->trips.size(); i++) {
         TripInformation *trip = this->trips[i];
+
         if (trip->getDriver() != NULL && trip->getTime() < time) {
-            if (!trip->isFinishCalcTrack()){
-                pthread_join(trip->getTripThread(), NULL);
-            }
-            trip->moveOneStep();
-            // send the driver to the client.
-            this->sendUpdateDriver(trip->getDriver(), udp);
-            // Checking if the trip is done.
-            if (!trip->getDriver()->isOccupied()) {
-                this->removeTrip(trip);
-                delete trip;
-                i--;
+            if (trip->isFinishCalcTrack()) {
+                LINFO << "join\n";
+                //pthread_join(trip->getTripThread(), NULL);
+
+                trip->moveOneStep();
+                // send the driver to the client.
+                this->sendUpdateDriver(trip->getDriver(), tcp, descriptorVec[trip->getDriver()->getId()]);
+                // Checking if the trip is done.
+                if (!trip->getDriver()->isOccupied()) {
+                    this->removeTrip(trip);
+                    delete trip;
+                    i--;
+                }
             }
         }
     }
@@ -140,6 +140,7 @@ TaxiCenter::~TaxiCenter() {
 //        delete this->cabs[i];
 //    }
 
+
     // Deleting every driver in taxi canter.
     for (int i = 0; i < (int) this->drivers.size(); i++) {
         delete this->drivers[i];
@@ -152,20 +153,12 @@ TaxiCenter::~TaxiCenter() {
 }
 
 
-void TaxiCenter::sendUpdateDriver(Driver *driver, Socket *udp) {
+void TaxiCenter::sendUpdateDriver(Driver *driver, Socket *tcp,int descriptor) {
     string serial_str;
     back_insert_device<std::string> inserter(serial_str);
     boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
     binary_oarchive oa(s);
     oa << driver;
     s.flush();
-    udp->sendData(serial_str);
-}
-
-void TaxiCenter::addTripsThread(pthread_t pt) {
-    this->tripsThreads.push_back(pt);
-}
-
-void TaxiCenter::removeTripsThread(pthread_t pt) {
-    tripsThreads.erase(std::remove(tripsThreads.begin(), tripsThreads.end(), pt), tripsThreads.end());
+    tcp->sendData(serial_str, descriptor);
 }

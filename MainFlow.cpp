@@ -4,14 +4,18 @@
 #include "Tcp.h"
 #include <pthread.h>
 
+#include "easyloggingpp-8.91/easylogging++.h"
+
+_INITIALIZE_EASYLOGGINGPP
+
 
 using namespace std;
 using namespace boost::iostreams;
 using namespace boost::archive;
 
-pthread_mutex_t trackLock;
+pthread_mutex_t trackLock = PTHREAD_MUTEX_INITIALIZER;
 
-MainFlow::MainFlow() {
+MainFlow::MainFlow(char *argv[]) {
     this->cab = NULL;
     this->driver = NULL;
     this->tripInformation = NULL;
@@ -19,6 +23,11 @@ MainFlow::MainFlow() {
     this->tcp = NULL;
     this->tripThread = NULL;
     this->time = 0;
+    this->tcp = new Tcp(1, atoi(argv[1])); // Set the port to tcp.
+    for (int i= 0; i< 10;i++){
+        descriptorVec[i]=-1;
+    }
+    this->taxiCenter = NULL;
 }
 
 MainFlow::~MainFlow() {
@@ -26,7 +35,7 @@ MainFlow::~MainFlow() {
     delete map;
 }
 
-void MainFlow::startGame(char *argv[]) {
+void MainFlow::startGame() {
 
     int sizeX, sizeY, driverId;
     char dummy;
@@ -34,8 +43,9 @@ void MainFlow::startGame(char *argv[]) {
     cin >> sizeX >> sizeY; // Get the n,m of the map.
     this->map = this->MapParser(sizeX, sizeY);
     updateObstacles();
-    TaxiCenter taxiCenter(this->map); // Create taxi center.
+    taxiCenter= new TaxiCenter(this->map); // Create taxi center.
     int mission; // the num of choice in the menu.
+
     do {
         cin >> mission;
         switch (mission) {
@@ -45,19 +55,26 @@ void MainFlow::startGame(char *argv[]) {
                 char manufacturer, color1;
                 cin >> cabId >> dummy >> cabType >> dummy >> manufacturer >> dummy >> color1;
                 this->cab = this->cabParser(cabId, cabType, manufacturer, color1);
-                taxiCenter.addCab(this->cab);
+                taxiCenter->addCab(this->cab);
                 break;
 
             case 1:  // Get driver parameters.
                 cin >> numOfDrivers;
+                //int clientPort = atoi(argv[1]);
+                tcp->initialize();
                 while (numOfDrivers > 0) { // Getting the drivers.
-                    this->tcp = new Tcp(1, atoi(argv[1])); // Set the port to tcp.
-                    tcp->initialize();
-                    receiveDriver();
+                    tempDescriptor = tcp->acceptDescriptorCommunicate();
+                    pthread_t t1;
+                    int status = pthread_create(&t1, NULL, handleThread, (void*) this);
+                    if(status) {
+                        cout << "thread not create" << endl;
+                    }
+                    cout << "create";
+/*                    receiveDriver(tempDescriptor);
                     this->cab = taxiCenter.findCabById(this->driver->getCabId());
                     this->driver->setCab(this->cab);
-                    sendUpdateCab(this->cab); // Send cab to the client.
-                    taxiCenter.addDriver(this->driver);
+                    sendUpdateCab(this->cab,tempDescriptor); // Send cab to the client.
+                    taxiCenter.addDriver(this->driver);*/
                     numOfDrivers--;
                 }
                 break;
@@ -78,8 +95,8 @@ void MainFlow::startGame(char *argv[]) {
                                                              numOfPassengers, tariff,
                                                              this->map, time);
                 createTripThread(this->tripInformation);
-                taxiCenter.addTripsThread(this->tripThread);
-                taxiCenter.addTrip(
+                //taxiCenter.addTripsThread(this->tripThread);
+                taxiCenter->addTrip(
                         this->tripInformation); // add the trip to the list of taxi center.
                 break;
 
@@ -87,20 +104,26 @@ void MainFlow::startGame(char *argv[]) {
                 // Start the trips.
                 this->time++;
                 // Make one step and send the update driver to the client.
-                taxiCenter.driving(this->time, this->tcp);
+                taxiCenter->driving(this->time, this->tcp ,descriptorVec);
                 break;
 
             case 4:
                 // Print driver location
                 cin >> driverId;
-                taxiCenter.printDriverLocation(driverId);
+                taxiCenter->printDriverLocation(driverId);
                 break;
-
             case 7:
-                // return.
-                this->driver = taxiCenter.getDriverVec()[0];
-                this->driver->setId(-1); // Prepare to end the client.
-                sendUpdateDriver(this->driver);
+                for (int i= 0; i< 10;i++){
+                    if (descriptorVec[i]==-1){
+                        continue;
+                    }
+                    this->driver = taxiCenter->getDriverVec()[0];
+                    this->driver->setId(-1); // Prepare to end the client.
+                    sendUpdateDriver(this->driver, descriptorVec[i]);
+                    taxiCenter->removeDriver(this->driver);
+                }
+                //pthread_mutex_destroy(&trackLock);
+
                 return;
             default:
                 throw invalid_argument("invalid number of mission\n");
@@ -134,38 +157,38 @@ Grid *MainFlow::MapParser(int n, int m) {
     return new Matrix(n, m);
 }
 
-void MainFlow::sendUpdateDriver(Driver *driver) {
+void MainFlow::sendUpdateDriver(Driver *driver,int descriptor) {
     string serial_str;
     back_insert_device<std::string> inserter(serial_str);
     boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
     binary_oarchive oa(s);
     oa << driver;
     s.flush();
-    tcp->sendData(serial_str);
+    tcp->sendData(serial_str,descriptor);
 }
 
-void MainFlow::sendUpdateCab(Cab *cab) {
+void MainFlow::sendUpdateCab(Cab *cab,int descriptor) {
     string serial_str;
     back_insert_device<std::string> inserter(serial_str);
     boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
     binary_oarchive oa(s);
     oa << cab;
     s.flush();
-    tcp->sendData(serial_str);
+    tcp->sendData(serial_str,descriptor);
 }
 
-void MainFlow::receiveDriver() {
+void MainFlow::receiveDriver(int descriptor) {
     char buffer[4096];
-    tcp->reciveData(buffer, sizeof(buffer));
+    tcp->reciveData(buffer, sizeof(buffer), descriptor);
     char *end = buffer + 4095;
     basic_array_source<char> device(buffer, end);
-    boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
-            device);
+    boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(device);
     binary_iarchive ia(s2);
     ia >> this->driver;
     // update the current point to the driver.
     delete this->driver->getcurrentPoint();
     this->driver->setCurrentPoint(this->map->getSourceElement(0, 0));
+    descriptorVec[this->driver->getId()] = descriptor ;
 }
 
 void MainFlow::updateObstacles() {
@@ -186,5 +209,15 @@ void MainFlow::createTripThread(TripInformation *trip) {
     if (status){
         cout << "Not good";
     }
+    LINFO << "createTripThread";
 }
 
+void* MainFlow::handleThread(void* mainflow) {
+
+    MainFlow *mainFlow = (MainFlow*) mainflow;
+    mainFlow->receiveDriver(mainFlow->tempDescriptor);
+    mainFlow->cab = mainFlow->taxiCenter->findCabById(mainFlow->driver->getCabId());
+    mainFlow->driver->setCab(mainFlow->cab);
+    mainFlow->sendUpdateCab(mainFlow->cab,mainFlow->tempDescriptor); // Send cab to the client.
+    mainFlow->taxiCenter->addDriver(mainFlow->driver);
+}

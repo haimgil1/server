@@ -1,0 +1,47 @@
+* commit 10e18bc631c9a0881bc81352ec686647f42222ca
+| Author: haimgil1 <haimgil1@gmail.com>
+| Date:   Mon Jan 2 20:21:30 2017 +0200
+| 
+|     final ex4
+|  
+* commit d6455080f7ce3be378037fed838bde0123250fdf
+| Author: chenEliyahou <chen.eliyahou@gmail.com>
+| Date:   Mon Jan 2 10:21:37 2017 +0200
+| 
+|     with comments
+|  
+* commit ec24cf283ac46127c071e09df254445d04fe0738
+| Author: chenEliyahou <chen.eliyahou@gmail.com>
+| Date:   Sun Jan 1 00:52:38 2017 +0200
+| 
+|     before u2
+|  
+* commit 287b5245b6e52b2cce82635dfe4401641b4f2e47
+| Author: haimgil1 <haimgil1@gmail.com>
+| Date:   Fri Dec 30 14:43:39 2016 +0200
+| 
+|     checking memory leaks2
+|  
+* commit b7f5c74ca85e5d3f85b133a42f37dc01284fe7c9
+| Author: haimgil1 <haimgil1@gmail.com>
+| Date:   Fri Dec 30 14:18:48 2016 +0200
+| 
+|     checking memory leaks
+|  
+* commit fdf350c7c7f63232cd56bfc83192ec988a34a2a7
+| Author: haimgil1 <haimgil1@gmail.com>
+| Date:   Fri Dec 30 00:53:55 2016 +0200
+| 
+|     seralization works2
+|  
+* commit 3404be9025042eefe7cbe550ccc720f1334f41ff
+| Author: haimgil1 <haimgil1@gmail.com>
+| Date:   Fri Dec 30 00:35:05 2016 +0200
+| 
+|     seralization works
+|  
+* commit 35d89bb6e385c5bf1b334d23f6351f3caa8f23f1
+  Author: haimgil1 <haimgil1@gmail.com>
+  Date:   Thu Dec 29 15:39:54 2016 +0200
+  
+      Initial commit
