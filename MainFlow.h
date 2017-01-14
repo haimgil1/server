@@ -28,6 +28,7 @@ private:
     int descriptorVec[10];
     int tempDescriptor;
     TaxiCenter *taxiCenter;
+    int flagCase;
 public:
     // Default constructor.
     MainFlow(char *argv[]);
@@ -60,7 +61,7 @@ public:
     void sendUpdateCab(Cab *cab,int descriptor);
 
     // The function receive driver from the client.
-    void receiveDriver(int descriptor);
+    Driver* receiveDriver(int descriptor);
 
     // The function update the obstacle in the map.
     void updateObstacles();

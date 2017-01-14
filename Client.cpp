@@ -88,6 +88,8 @@ void Client::updateDriver() {
         binary_iarchive ia(s2);
         ia >> this->driver;
         LINFO << driver->getId();
+        LINFO << *(driver->getcurrentPoint());
+
         if (this->driver->getId() == -1) { // check if close the client session.
             delete this->driver->getcurrentPoint(); // delete the driver.
             break;

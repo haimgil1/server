@@ -28,11 +28,13 @@ MainFlow::MainFlow(char *argv[]) {
         descriptorVec[i]=-1;
     }
     this->taxiCenter = NULL;
+    this->flagCase =0;
 }
 
 MainFlow::~MainFlow() {
     delete tcp;
     delete map;
+    delete taxiCenter;
 }
 
 void MainFlow::startGame() {
@@ -69,7 +71,7 @@ void MainFlow::startGame() {
                     if(status) {
                         cout << "thread not create" << endl;
                     }
-                    cout << "create";
+                    cout << "create" << endl;
 /*                    receiveDriver(tempDescriptor);
                     this->cab = taxiCenter.findCabById(this->driver->getCabId());
                     this->driver->setCab(this->cab);
@@ -105,12 +107,15 @@ void MainFlow::startGame() {
                 this->time++;
                 // Make one step and send the update driver to the client.
                 taxiCenter->driving(this->time, this->tcp ,descriptorVec);
+                this->flagCase =9;
+
                 break;
 
             case 4:
                 // Print driver location
                 cin >> driverId;
                 taxiCenter->printDriverLocation(driverId);
+                this->flagCase =4;
                 break;
             case 7:
                 for (int i= 0; i< 10;i++){
@@ -123,6 +128,7 @@ void MainFlow::startGame() {
                     taxiCenter->removeDriver(this->driver);
                 }
                 //pthread_mutex_destroy(&trackLock);
+                this->flagCase =7;
 
                 return;
             default:
@@ -177,7 +183,7 @@ void MainFlow::sendUpdateCab(Cab *cab,int descriptor) {
     tcp->sendData(serial_str,descriptor);
 }
 
-void MainFlow::receiveDriver(int descriptor) {
+Driver* MainFlow::receiveDriver(int descriptor) {
     char buffer[4096];
     tcp->reciveData(buffer, sizeof(buffer), descriptor);
     char *end = buffer + 4095;
@@ -189,6 +195,7 @@ void MainFlow::receiveDriver(int descriptor) {
     delete this->driver->getcurrentPoint();
     this->driver->setCurrentPoint(this->map->getSourceElement(0, 0));
     descriptorVec[this->driver->getId()] = descriptor ;
+    return this->driver;
 }
 
 void MainFlow::updateObstacles() {
@@ -215,9 +222,34 @@ void MainFlow::createTripThread(TripInformation *trip) {
 void* MainFlow::handleThread(void* mainflow) {
 
     MainFlow *mainFlow = (MainFlow*) mainflow;
-    mainFlow->receiveDriver(mainFlow->tempDescriptor);
-    mainFlow->cab = mainFlow->taxiCenter->findCabById(mainFlow->driver->getCabId());
-    mainFlow->driver->setCab(mainFlow->cab);
+    pthread_mutex_lock(&trackLock);
+    Driver* driver=mainFlow->receiveDriver(mainFlow->tempDescriptor);
+    mainFlow->cab = mainFlow->taxiCenter->findCabById(driver->getCabId());
+    driver->setCab(mainFlow->cab);
     mainFlow->sendUpdateCab(mainFlow->cab,mainFlow->tempDescriptor); // Send cab to the client.
-    mainFlow->taxiCenter->addDriver(mainFlow->driver);
+    mainFlow->taxiCenter->addDriver(driver);
+    pthread_mutex_unlock(&trackLock);
+
+/*    int d;
+    for(int i=0; i<mainFlow->taxiCenter->getDriverVec().size(); i++){
+        if(mainFlow->taxiCenter->getDriverVec()[i] == )
+    }*/
+
+    AbstractNode* node = driver->getcurrentPoint();
+    cout<< driver->getId() << endl;
+    while(true){
+        if(mainFlow->flagCase == 9) {
+            if (!(driver->getcurrentPoint()->operator==(*node))) {
+                 //send the driver to the client.
+                mainFlow->sendUpdateDriver(driver, mainFlow->descriptorVec[driver->getId()]);
+                node = driver->getcurrentPoint();
+                cout << "here9" << endl;
+            }
+        }
+
+        if(mainFlow->flagCase == 7) {
+            cout << "here7" <<endl;
+            break;
+        }
+    }
 }

@@ -120,7 +120,7 @@ void TaxiCenter::driving(double time, Socket *tcp,int descriptorVec[]) {
 
                 trip->moveOneStep();
                 // send the driver to the client.
-                this->sendUpdateDriver(trip->getDriver(), tcp, descriptorVec[trip->getDriver()->getId()]);
+                //this->sendUpdateDriver(trip->getDriver(), tcp, descriptorVec[trip->getDriver()->getId()]);
                 // Checking if the trip is done.
                 if (!trip->getDriver()->isOccupied()) {
                     this->removeTrip(trip);
