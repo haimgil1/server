@@ -101,7 +101,7 @@ void TaxiCenter::driving(double time, Socket *tcp,int descriptorVec[]) {
     // Assigning driver to a trip.
     for (int i = 0; i < (int) this->trips.size(); i++) {
         TripInformation *trip = this->trips[i];
-        if (trip->getTime() <= time && trip->getDriver()== NULL){
+        if (trip->getTime() <= time && trip->getDriver() == NULL) {
             Driver *driver = this->findClosestDriverByTripLocation(trip->getStartPoint());
             if (driver != NULL) {
                 trip->setDriver(driver);

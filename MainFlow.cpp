@@ -129,7 +129,7 @@ void MainFlow::startGame() {
                 }
                 //pthread_mutex_destroy(&trackLock);
                 this->flagCase =7;
-
+                //pthread_exit(NULL);
                 return;
             default:
                 throw invalid_argument("invalid number of mission\n");
@@ -248,7 +248,7 @@ void* MainFlow::handleThread(void* mainflow) {
         }
 
         if(mainFlow->flagCase == 7) {
-            cout << "here7" <<endl;
+            //LINFO << "here7" <<endl;
             break;
         }
     }
