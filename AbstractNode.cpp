@@ -40,12 +40,12 @@ ostream &operator<<(ostream &os, const AbstractNode &node) {
     return node.print(os);
 }
 
-bool AbstractNode::operator==(const AbstractNode &node) const {
+/*bool AbstractNode::operator==(const AbstractNode &node) const {
     return prev == node.prev &&
            distance == node.distance &&
            numOfNeighbors == node.numOfNeighbors &&
            vectorNeighbors == node.vectorNeighbors;
-}
+}*/
 
 bool AbstractNode::operator!=(const AbstractNode &node) const {
     return !(node == *this);

@@ -115,7 +115,7 @@ void TaxiCenter::driving(double time, Socket *tcp,int descriptorVec[]) {
 
         if (trip->getDriver() != NULL && trip->getTime() < time) {
             if (trip->isFinishCalcTrack()) {
-                LINFO << "join\n";
+                //LINFO << "join\n";
                 //pthread_join(trip->getTripThread(), NULL);
 
                 trip->moveOneStep();

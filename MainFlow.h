@@ -70,6 +70,7 @@ public:
 
     static void* handleThread(void* mainflow);
 
+    void joiningThreads();
     };
 
 
