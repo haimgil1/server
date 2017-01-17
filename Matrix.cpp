@@ -22,7 +22,7 @@ Matrix::~Matrix() {
 
 void Matrix::validate() {
     // Check the limits of the matrix.
-    if ((this->n < 0) || (this->m < 0) || (this->n > 2000) || (this->m > 2000)) {
+    if ((this->n < 0) || (this->m < 0) || (this->n > 1000) || (this->m > 1000)) {
         throw invalid_argument("wrong range");
     }
 }

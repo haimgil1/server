@@ -20,7 +20,7 @@ class Matrix : public Grid {
 private:
     // Members.
     int n, m;
-    Node arrNode[2000][2000];
+    Node arrNode[1000][1000];
 
     void validate();
 

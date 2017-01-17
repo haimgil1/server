@@ -1,7 +1,7 @@
 #include "Tcp.h"
 #include "Client.h"
 
-#include "easyloggingpp-8.91/easylogging++.h"
+//#include "easyloggingpp-8.91/easylogging++.h"
 using namespace std;
 using namespace boost::iostreams;
 using namespace boost::archive;
@@ -11,8 +11,6 @@ using namespace std;
 int main(int argc, char *argv[]) {
     Client client(argv[2]);
     client.scanDriver();
-//    client.sendInt();
-//    client.receiveInt();
     client.sendDriver();
     client.receiveCab();
     client.updateDriver();
@@ -32,7 +30,7 @@ Client::Client(char *argv) {
     this->tcp = new Tcp(0, atoi(argv)); // Set the tcp.
     this->tcp->initialize();
     //this->accept = this->tcp->acceptDescriptorCommunicate();
-    this->end = buffer + 4095;
+    this->end = buffer + 99998;
     this->driver = NULL;
     this->cab = NULL;
     this->node = new Node(Point(0, 0), NULL);
@@ -57,6 +55,7 @@ void Client::receiveCab() {
     binary_iarchive ia(s2);
     ia >> this->cab;
     this->driver->setCab(this->cab);
+    cout << "recieve cab\n";
 }
 
 void Client::sendDriver() {
@@ -67,6 +66,7 @@ void Client::sendDriver() {
     oa << this->driver;
     s.flush();
     this->tcp->sendData(serial_str,1);
+    cout << "send Driver\n";
 }
 
 void Client::updateDriver() {
@@ -87,33 +87,13 @@ void Client::updateDriver() {
                 device);
         binary_iarchive ia(s2);
         ia >> this->driver;
-        LINFO << driver->getId();
+        cout << "got driver\n";
+        cout << driver->getId();
+        cout << *(driver->getcurrentPoint());
+
         if (this->driver->getId() == -1) { // check if close the client session.
             delete this->driver->getcurrentPoint(); // delete the driver.
             break;
         }
     }
-}
-
-void Client::receiveInt() {
-    int  num;
-    this->tcp->reciveData(buffer, sizeof(buffer),this->tcp->acceptDescriptorCommunicate());
-    basic_array_source<char> device(buffer, end);
-    boost::iostreams::stream<boost::iostreams::basic_array_source<char> > s2(
-            device);
-    binary_iarchive ia(s2);
-    ia >> num;
-    cout<<num;
-}
-
-void Client::sendInt() {
-    string serial_str;
-    int num;
-    cin >> num;
-    back_insert_device<std::string> inserter(serial_str);
-    boost::iostreams::stream<boost::iostreams::back_insert_device<std::string> > s(inserter);
-    binary_oarchive oa(s);
-    oa << num;
-    s.flush();
-    this->tcp->sendData(serial_str,this->tcp->acceptDescriptorCommunicate());
 }

@@ -28,7 +28,7 @@ private:
     vector<Driver *> drivers;
     vector<Cab *> cabs;
     vector<TripInformation *> trips;
-    //vector<pthread_t> tripsThreads;
+    vector<int> descriptors;
     Grid *map;
 
 public:
@@ -126,11 +126,13 @@ public:
     /**
      * Start the trips.
      */
-    void driving(double time, Socket *tcp,int descriptorVec[]);
-
+    void driving(double time, Socket *tcp);
+    void addDescriptor(int descriptor);
     void sendUpdateDriver(Driver *driver, Socket *tcp,int descriptor);
 
     virtual ~TaxiCenter();
+
+    const vector<int> &getDescriptors() const;
 };
 
 

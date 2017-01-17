@@ -9,7 +9,6 @@
 #include "Point.h"
 #include <list>
 #include "Driver.h"
-#include "TwoPoints.h"
 #include <stdexcept>
 #include <algorithm>
 
@@ -48,7 +47,7 @@ private:
     Grid *map;
     bool finishCalcTrack;
     pthread_mutex_t trackLock;
-    pthread_t tripThread;
+    pthread_t *tripThread;
     void validate();
 
 public:
@@ -133,7 +132,11 @@ public:
 
     pthread_mutex_t &getTrackLock();
 
-    pthread_t &getTripThread() ;
+    pthread_t *getTripThread() ;
+
+    void createTripThread();
+
+    void join();
 };
 
 

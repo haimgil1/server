@@ -1,5 +1,6 @@
 #include "TripInformation.h"
-#include "easyloggingpp-8.91/easylogging++.h"
+//#include "easyloggingpp-8.91/easylogging++.h"
+pthread_mutex_t trackLock2 = PTHREAD_MUTEX_INITIALIZER;
 TripInformation::TripInformation() {
 
 }
@@ -19,6 +20,7 @@ TripInformation::TripInformation(int newRideId, Point newStartPoint,
     this->validate(); // Check validate of the parameters.
     this->bfs = new Bfs();
 //    this->tripThread = newTripThread;
+    this->tripThread = new pthread_t();
     this->trackLock = trackLock;
     this->finishCalcTrack = false;
     //this->settingTrack();
@@ -26,6 +28,7 @@ TripInformation::TripInformation(int newRideId, Point newStartPoint,
 
 TripInformation::~TripInformation() {
     delete bfs;
+    delete tripThread;
 }
 
 void TripInformation::validate() {
@@ -85,17 +88,17 @@ vector<Passenger *> TripInformation::getPassenger() {
 void* TripInformation::settingTrack(void *ptr) {
 
     TripInformation *trip= (TripInformation *) ptr;
-    pthread_mutex_lock(&trip->getTrackLock());
-    LINFO << "start\n";
+    pthread_mutex_lock(&trackLock2);
+    cout << "start trip\n";
     stack<AbstractNode *> track=trip->getBfs()->BfsAlgorithm
             (trip->getMap()->getSourceElement(trip->getStartPoint()),
              trip->getMap()->getSourceElement(trip->getEndPoint()));
 
     trip->setTrack(track);
     trip->getMap()->setDistanceNeighbors();
-    pthread_mutex_unlock(&trip->getTrackLock());
+    pthread_mutex_unlock(&trackLock2);
     trip->setIsFinishCalcTrack(true);
-    LINFO << "end\n";
+    cout << "end trip\n";
 }
 
 Grid *TripInformation::getMap() {
@@ -173,6 +176,19 @@ pthread_mutex_t &TripInformation::getTrackLock()  {
     return trackLock;
 }
 
-pthread_t &TripInformation::getTripThread()  {
+pthread_t *TripInformation::getTripThread()  {
     return tripThread;
+}
+
+void TripInformation::join(){
+    pthread_join(*tripThread, NULL);
+}
+
+void TripInformation::createTripThread(){
+    int status = pthread_create(tripThread, NULL,
+                                this->settingTrack, (void *) this);
+    if (status){
+        cout << "Didn't succeed to create thread";
+    }
+    cout << "createTripThread";
 }

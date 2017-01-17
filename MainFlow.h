@@ -24,9 +24,10 @@ private:
     Grid *map;
     double time;
     Socket *tcp;
-    pthread_t  tripThread;
-    int descriptorVec[10];
-    int tempDescriptor;
+    TaxiCenter *taxiCenter;
+    int flagCase;
+    int numOfDrivers;
+    bool isJoiningTripThred;
 public:
     // Default constructor.
     MainFlow(char *argv[]);
@@ -39,10 +40,6 @@ public:
 
     // The function gets parameters and return a cab.
     Cab *cabParser(int cabId, int cabType, char manufacturer, char color1);
-
-    // The function gets parameters and return a driver.
-    Driver *driverParser(int driverId, double age, char status, double experience,
-                         int cabId);
 
     // The function gets parameters and return a trip information.
     TripInformation *tripInfoParser(int tripId, int startX, int startY, int endX, int endY,
@@ -59,12 +56,16 @@ public:
     void sendUpdateCab(Cab *cab,int descriptor);
 
     // The function receive driver from the client.
-    void receiveDriver(int descriptor);
+    Driver* receiveDriver(int descriptor);
 
     // The function update the obstacle in the map.
     void updateObstacles();
 
     void createTripThread(TripInformation *trip);
+
+    static void* handleThread(void* mainflow);
+
+    void joiningThreads();
 
 };
 

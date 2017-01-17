@@ -33,7 +33,7 @@ public:
     ~Node();
 
     // Overriding the == operator.
-    bool operator==(const AbstractNode &otherNode) const;
+    virtual bool operator==(const AbstractNode &otherNode) const;
 
 
     bool operator!=(const AbstractNode &otherNode) const;

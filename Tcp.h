@@ -6,6 +6,7 @@
 #ifndef TCP_H_
 #define TCP_H_
 
+#include <vector>
 #include "Socket.h"
 
 class Tcp : public Socket {

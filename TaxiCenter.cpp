@@ -1,6 +1,6 @@
 
 #include "TaxiCenter.h"
-#include "easyloggingpp-8.91/easylogging++.h"
+//#include "easyloggingpp-8.91/easylogging++.h"
 
 using namespace std;
 using namespace boost::iostreams;
@@ -27,6 +27,9 @@ void TaxiCenter::addTrip(TripInformation *newTrip) {
     this->trips.push_back(newTrip);
 }
 
+void TaxiCenter::addDescriptor(int descriptor) {
+    this->descriptors.push_back(descriptor);
+}
 
 vector<Driver *> TaxiCenter::getDriverVec() {
     return this->drivers;
@@ -97,11 +100,11 @@ Driver *TaxiCenter::findDriverById(int driverId) {
     return NULL;
 }
 
-void TaxiCenter::driving(double time, Socket *tcp,int descriptorVec[]) {
+void TaxiCenter::driving(double time, Socket *tcp) {
     // Assigning driver to a trip.
     for (int i = 0; i < (int) this->trips.size(); i++) {
         TripInformation *trip = this->trips[i];
-        if (trip->getTime() <= time && trip->getDriver()== NULL){
+        if (trip->getTime() <= time && trip->getDriver() == NULL) {
             Driver *driver = this->findClosestDriverByTripLocation(trip->getStartPoint());
             if (driver != NULL) {
                 trip->setDriver(driver);
@@ -114,19 +117,20 @@ void TaxiCenter::driving(double time, Socket *tcp,int descriptorVec[]) {
         TripInformation *trip = this->trips[i];
 
         if (trip->getDriver() != NULL && trip->getTime() < time) {
-            if (!trip->isFinishCalcTrack()){
-                pthread_join(trip->getTripThread(), NULL);
-                LINFO << "join\n";
+            if (!trips[i]->isFinishCalcTrack()){
+                trips[i]->join();
             }
-            trip->moveOneStep();
-            // send the driver to the client.
-            this->sendUpdateDriver(trip->getDriver(), tcp, descriptorVec[trip->getDriver()->getId()]);
-            // Checking if the trip is done.
-            if (!trip->getDriver()->isOccupied()) {
-                this->removeTrip(trip);
-                delete trip;
-                i--;
-            }
+                //LINFO << "join\n";
+                //pthread_join(trip->getTripThread(), NULL);
+                trip->moveOneStep();
+                // send the driver to the client.
+                //this->sendUpdateDriver(trip->getDriver(), tcp, descriptorVec[trip->getDriver()->getId()]);
+                // Checking if the trip is done.
+                if (!trip->getDriver()->isOccupied()) {
+                    this->removeTrip(trip);
+                    delete trip;
+                    i--;
+                }
         }
     }
 }
@@ -160,4 +164,8 @@ void TaxiCenter::sendUpdateDriver(Driver *driver, Socket *tcp,int descriptor) {
     oa << driver;
     s.flush();
     tcp->sendData(serial_str, descriptor);
+}
+
+const vector<int> &TaxiCenter::getDescriptors() const {
+    return descriptors;
 }

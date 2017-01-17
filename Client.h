@@ -41,13 +41,10 @@ public:
     // Receive the update driver after moving one step.
     void updateDriver();
 
-    void receiveInt();
-
-    void sendInt();
 private:
     //Members.
     Socket *tcp;
-    char buffer[4096];
+    char buffer[99999];
     char *end;
     Driver *driver;
     Cab *cab;
